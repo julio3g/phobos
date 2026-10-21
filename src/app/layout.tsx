@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import './globals.css'
 import { siteConfig } from '@/lib/config'
+import { cn } from '@/lib/utils'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -15,7 +16,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="pt-BR" className={`${poppins.className} h-full antialiased`}>
+    <html
+      lang="pt-BR"
+      className={cn(poppins.className, 'font-sans antialiased')}
+    >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   )
