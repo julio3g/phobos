@@ -1,8 +1,13 @@
 import { relations } from 'drizzle-orm'
-import { index, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core'
+import {
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core'
 import { generateId } from '@/lib/id'
 import { users } from '.'
-import { timestamps } from './columns'
 
 export const usersTokens = pgTable(
   'user_tokens',
@@ -14,7 +19,8 @@ export const usersTokens = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     tokenHash: text('token_hash').notNull(),
-    ...timestamps,
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   t => [
     uniqueIndex('user_tokens_hash_unique').on(t.tokenHash),

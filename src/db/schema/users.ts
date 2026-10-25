@@ -11,7 +11,7 @@ export const users = pgTable(
       .primaryKey(),
     name: text('name').notNull(),
     username: text('username').notNull().unique(),
-    email: text('email').notNull().unique(),
+    email: text('email').notNull(),
     passwordHash: text('password_hash'),
     active: boolean().default(true).notNull(),
     imageUrl: text('image_url'),

@@ -1,6 +1,5 @@
 import { integer, pgTable, text } from 'drizzle-orm/pg-core'
 import { generateId } from '@/lib/id'
-import { users } from '.'
 import { timestamps } from './columns'
 
 export const organizations = pgTable('organizations', {
@@ -8,10 +7,7 @@ export const organizations = pgTable('organizations', {
     .$defaultFn(() => generateId())
     .primaryKey(),
   name: text('name').notNull(),
-  slug: text('name').notNull(),
-  userId: text('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  slug: text('slug').notNull().unique(),
   lastOrderNumber: integer('last_order_number').notNull().default(0),
   ...timestamps,
 })
