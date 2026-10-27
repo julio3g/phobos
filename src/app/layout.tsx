@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google'
 import '../styles/globals.css'
 import { siteConfig } from '@/lib/config'
 import { cn } from '@/lib/utils'
+import { Providers } from './providers'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -18,9 +19,12 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html
       lang="pt-BR"
+      suppressHydrationWarning
       className={cn(poppins.className, 'font-sans antialiased')}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }
