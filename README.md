@@ -173,48 +173,12 @@ Exemplo para custo total de R$ 35,00 e percentual de 30%:
 
 **Importante:** impostos, despesas fixas, taxas de meios de pagamento e frete não integram o cálculo inicial. Eles poderão ser considerados em uma evolução da calculadora; portanto, o lucro mostrado no MVP é uma estimativa antes desses custos.
 
-## Estrutura de pastas sugerida
-
-```text
-src/
-├── app/
-│   ├── (auth)/
-│   │   ├── sign-in/
-│   │   └── sign-up/
-│   └── (dashboard)/
-│       ├── dashboard/
-│       ├── materials/
-│       ├── calculator/
-│       ├── products/
-│       └── settings/
-├── components/
-│   ├── ui/
-│   ├── materials/
-│   ├── products/
-│   └── calculator/
-├── db/
-│   ├── index.ts
-│   └── schema/
-│       ├── users.ts
-│       ├── businesses.ts
-│       ├── materials.ts
-│       ├── products.ts
-│       └── product-materials.ts
-├── features/
-│   ├── materials/
-│   ├── products/
-│   └── pricing/
-└── lib/
-    ├── auth/
-    └── utils/
-```
-
 **Princípio:** começar com uma única aplicação Next.js. Um monorepo ou API separada só devem ser adotados quando houver uma necessidade real.
 
 ## Implementação — roteiro sugerido
 
-- [ ] Configurar Next.js, TypeScript, banco PostgreSQL e Drizzle ORM.
-- [ ] Definir autenticação, sessões e isolamento de dados por negócio.
+- [X] Configurar Next.js, TypeScript, banco PostgreSQL e Drizzle ORM.
+- [X] Definir autenticação, sessões e isolamento de dados por negócio.
 - [ ] Criar tabelas e migrações.
 - [ ] Implementar cadastro e consulta de insumos.
 - [ ] Criar serviço de cálculo com testes unitários.

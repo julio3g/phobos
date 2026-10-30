@@ -1,0 +1,1 @@
+ALTER TABLE "clients" DROP CONSTRAINT "clients_person_doc_check";

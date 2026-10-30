@@ -1,13 +1,7 @@
-import { sql } from 'drizzle-orm'
-import {
-  index,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-} from 'drizzle-orm/pg-core'
+import { index, pgTable, text, uniqueIndex } from 'drizzle-orm/pg-core'
 import { generateId } from '@/lib/id'
 import { organizations, users } from '.'
+import { timestamps } from './columns'
 import { userRoleEnum } from './enums'
 
 export const members = pgTable(
@@ -23,13 +17,13 @@ export const members = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     role: userRoleEnum('role').notNull().default('member'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at')
-      .default(sql`current_timestamp`)
-      .$onUpdate(() => new Date()),
+    ...timestamps,
   },
   t => [
     uniqueIndex('members_org_user_unique').on(t.organizationId, t.userId),
+    // uniqueIndex('members_one_owner_per_org')
+    //   .on(t.organizationId)
+    //   .where(sql`${t.role} = 'owner'`),
     index('members_user_idx').on(t.userId),
   ]
 )

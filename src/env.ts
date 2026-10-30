@@ -52,6 +52,10 @@ export const env = createEnv({
       .string()
       .optional()
       .refine(requiredOnEnv('production'), 'Required in production'),
+    // consultas de CNPJ/CEP (cnpja.com) e CPF (cpfhub.io); opcionais: sem chave o
+    // formulário de clientes funciona, só sem o preenchimento automático
+    CNPJA_KEY: z.string().optional(),
+    CPF_HUB_KEY: z.string().optional(),
     CLOUDFLARE_ENDPOINT: z.url(),
     CLOUDFLARE_ACCESS_KEY_ID: z.string().nonempty(),
     CLOUDFLARE_SECRET_ACCESS_KEY: z.string().nonempty(),
