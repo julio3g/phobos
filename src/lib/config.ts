@@ -13,5 +13,6 @@ export const siteConfig: SiteConfigProps = {
     { href: '/clients', label: 'Clientes' },
     { href: '/products', label: 'Produtos' },
     { href: '/materials', label: 'Materiais' },
+    { href: '/settings', label: 'Configurações' },
   ],
 }
