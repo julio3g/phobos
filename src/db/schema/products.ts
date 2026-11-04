@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import {
   check,
   integer,
@@ -11,6 +11,7 @@ import { generateId } from '@/lib/id'
 import { money, timestamps } from './columns'
 import { marginTypeEnum } from './enums'
 import { organizations } from './organizations'
+import { productMaterials } from './product-materials'
 
 export const products = pgTable(
   'products',
@@ -26,6 +27,7 @@ export const products = pgTable(
     imageUrl: text('image_url'),
     description: text('description'),
     value: money('value'),
+    hourlyRate: money('hourly_rate').notNull().default(0),
     laborMinutes: integer('labor_minutes').notNull().default(0),
     marginType: marginTypeEnum('margin_type').notNull().default('percent'),
     marginValue: money('margin_value').notNull(),
@@ -46,12 +48,17 @@ export const products = pgTable(
     ),
     check('products_labor_minutes_nonnegative', sql`${t.laborMinutes} >= 0`),
     check('products_margin_nonnegative', sql`${t.marginValue} >= 0`),
+    // margem sobre a venda tem que ser < 100% (markup pode passar de 100%)
     check(
       'products_margin_percent_range',
-      sql`${t.marginType} <> 'percent' or ${t.marginValue} < 100`
+      sql`${t.marginType}::text <> 'margin' or ${t.marginValue} < 100`
     ),
   ]
 )
+
+export const productsRelations = relations(products, ({ many }) => ({
+  materials: many(productMaterials),
+}))
 
 export type Product = typeof products.$inferSelect
 export type NewProduct = typeof products.$inferInsert

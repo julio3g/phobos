@@ -22,6 +22,20 @@
       "when": 1793391279805,
       "tag": "0002_far_baron_strucker",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793394960561,
+      "tag": "0003_steady_nebula",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793833435737,
+      "tag": "0004_heavy_bushwacker",
+      "breakpoints": true
     }
   ]
 }

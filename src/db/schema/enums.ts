@@ -12,7 +12,8 @@ const orderStatusEnum = pgEnum('order_status', [
   'cancelled',
 ])
 
-const marginTypeEnum = pgEnum('margin_type', ['percent', 'fixed'])
+// percent = markup sobre o custo | margin = margem sobre o preço de venda | fixed = R$ sobre o custo
+const marginTypeEnum = pgEnum('margin_type', ['percent', 'margin', 'fixed'])
 
 const unitEnum = pgEnum('unit', ['un', 'm', 'g', 'kg', 'ml', 'pair'])
 
