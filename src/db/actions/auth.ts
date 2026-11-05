@@ -5,7 +5,13 @@ import { decodeJwt } from 'jose'
 import { connection } from 'next/server'
 import { db } from '@/db/connection'
 import { requireSession } from '@/db/queries'
-import { type Member, members, users, usersTokens } from '@/db/schema'
+import {
+  type Member,
+  members,
+  organizations,
+  users,
+  usersTokens,
+} from '@/db/schema'
 import { takeFirstOrNull, takeFirstOrThrow } from '@/db/utils'
 import {
   deleteAuthCookie,
@@ -14,8 +20,11 @@ import {
 } from '@/lib/auth-cookies'
 import { sha256 } from '@/lib/crypto'
 import { getErrorMessage } from '@/lib/handle-error'
+import { generateId } from '@/lib/id'
 import { signJwt } from '@/lib/jwt'
-import { getDummyHash, verifyPassword } from '@/lib/password'
+import { getDummyHash, hashPassword, verifyPassword } from '@/lib/password'
+import { slugify } from '@/lib/slug'
+import type { SignUpSchema } from '../validators'
 
 export async function createUserSession(
   member: Pick<Member, 'userId' | 'role'>
@@ -50,9 +59,11 @@ export async function signIn(input: { identifier: string; password: string }) {
       user?.passwordHash ?? (await getDummyHash()),
       input.password
     )
+
     if (!user || !passwordMatch) {
       throw new Error('Usuário/e-mail ou senha incorretos.')
     }
+    if (!user.active) throw new Error('Usuário desativado.')
 
     const member = await db
       .select({ userId: members.userId, role: members.role })
@@ -67,6 +78,7 @@ export async function signIn(input: { identifier: string; password: string }) {
 
     return { data: null, error: null }
   } catch (err) {
+    console.log(err)
     return { data: null, error: getErrorMessage(err) }
   }
 }
@@ -117,4 +129,76 @@ export async function signOutAllDevices() {
 
   await db.delete(usersTokens).where(eq(usersTokens.userId, userId))
   await deleteAuthCookie()
+}
+
+/** Cadastro público: cria usuário + organização (owner) e já abre a sessão. */
+export async function signUp(input: SignUpSchema) {
+  await connection()
+  try {
+    const [byUsername, byEmail] = await Promise.all([
+      db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.username, input.username))
+        .then(takeFirstOrNull),
+      db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(sql`lower(${users.email})`, input.email))
+        .then(takeFirstOrNull),
+    ])
+    if (byUsername) throw new Error(`O usuário "${input.username}" já existe`)
+    if (byEmail) throw new Error(`O e-mail "${input.email}" já está em uso`)
+
+    const base = slugify(input.organizationName, {
+      lower: true,
+      strict: true,
+      locale: 'pt',
+    })
+    if (!base) throw new Error('Nome do negócio inválido')
+    const taken = await db.query.organizations.findFirst({
+      where: eq(organizations.slug, base),
+      columns: { id: true },
+    })
+    const slug = taken
+      ? `${base}-${generateId().slice(0, 4).toLowerCase()}`
+      : base
+
+    const passwordHash = await hashPassword(input.password)
+
+    const member = await db.transaction(async tx => {
+      const user = await tx
+        .insert(users)
+        .values({
+          name: input.name,
+          username: input.username,
+          email: input.email,
+          passwordHash,
+        })
+        .returning({ id: users.id })
+        .then(takeFirstOrThrow)
+
+      const organization = await tx
+        .insert(organizations)
+        .values({ name: input.organizationName, slug })
+        .returning({ id: organizations.id })
+        .then(takeFirstOrThrow)
+
+      return tx
+        .insert(members)
+        .values({
+          organizationId: organization.id,
+          userId: user.id,
+          role: 'owner',
+        })
+        .returning({ userId: members.userId, role: members.role })
+        .then(takeFirstOrThrow)
+    })
+
+    await createUserSession(member)
+
+    return { data: null, error: null }
+  } catch (err) {
+    return { data: null, error: getErrorMessage(err) }
+  }
 }

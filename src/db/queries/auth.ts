@@ -8,7 +8,7 @@ import { cache } from 'react'
 import { deleteAuthCookie, getAuthCookie } from '@/lib/auth-cookies'
 import { sha256 } from '@/lib/crypto'
 import { db } from '../connection'
-import { members, usersTokens } from '../schema'
+import { members, organizations, usersTokens } from '../schema'
 import { takeFirstOrNull } from '../utils'
 
 async function logoutAndRedirect(raw?: string | null): Promise<never> {
@@ -55,7 +55,7 @@ export const getSessionData = cache(async (): Promise<SessionData> => {
       )
       .then(takeFirstOrNull)
 
-    const isAdminUser = row?.role === 'admin'
+    const isAdminUser = row?.role === 'admin' || row?.role === 'owner'
 
     const session = row
       ? {
@@ -83,3 +83,13 @@ export async function requireSession(): Promise<Session> {
 
   return session
 }
+
+/** Organização da sessão (configurações, moeda e valor/hora padrão). */
+export const getOrganization = cache(async () => {
+  const { organizationId } = await requireSession()
+  return db
+    .select()
+    .from(organizations)
+    .where(eq(organizations.id, organizationId))
+    .then(takeFirstOrNull)
+})
