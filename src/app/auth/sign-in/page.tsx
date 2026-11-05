@@ -1,5 +1,6 @@
 import { CalendarDays } from 'lucide-react'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { SignInForm } from './sign-in-form'
 
 export const metadata: Metadata = {
@@ -17,6 +18,12 @@ export default async function SignInPage() {
           </h1>
         </div>
         <SignInForm />
+        <p className="text-center text-muted-foreground text-sm">
+          Não tem conta?{' '}
+          <Link href="/auth/sign-up" className="underline">
+            Criar conta
+          </Link>
+        </p>
       </div>
     </div>
   )
