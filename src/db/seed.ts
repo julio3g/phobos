@@ -10,6 +10,7 @@ import {
   orderItems,
   orders,
   organizations,
+  productMaterials,
   products,
   users,
 } from './schema'
@@ -21,6 +22,7 @@ import { takeFirstOrThrow } from './utils'
 
 await db.delete(orderItems)
 await db.delete(orders)
+await db.delete(productMaterials)
 await db.delete(products)
 await db.delete(materials)
 await db.delete(clients)
