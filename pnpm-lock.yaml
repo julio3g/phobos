@@ -271,6 +271,9 @@ importers:
       shadcn:
         specifier: ^4.22.1
         version: 4.22.1
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
