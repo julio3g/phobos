@@ -35,7 +35,7 @@ export async function Header() {
                 }
                 variant="ghost"
                 size="sm"
-              ></Button>
+              />
             </div>
           ))}
         </div>

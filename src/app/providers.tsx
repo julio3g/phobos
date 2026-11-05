@@ -1,6 +1,7 @@
 'use client'
 
 import { ThemeProvider } from 'next-themes'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Toaster } from '@/components/ui/toast'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
@@ -13,8 +14,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <TooltipProvider>
-        {children}
-        <Toaster />
+        <NuqsAdapter>
+          {children}
+          <Toaster />
+        </NuqsAdapter>
       </TooltipProvider>
     </ThemeProvider>
   )
