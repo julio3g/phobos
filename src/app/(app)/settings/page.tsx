@@ -10,12 +10,11 @@ export default async function SettingsPage() {
   if (!organization) redirect('/auth/sign-in')
 
   return (
-    <div className="container mx-auto w-full max-w-xl space-y-6 px-4 md:px-8">
+    <div className="max-w-xl space-y-6">
       <h2 className="font-medium text-2xl">Configurações</h2>
       <SettingsForm
         defaultValues={{
           name: organization.name,
-          currency: organization.currency as 'BRL' | 'USD' | 'EUR',
           defaultHourlyRate: organization.defaultHourlyRate,
         }}
       />
