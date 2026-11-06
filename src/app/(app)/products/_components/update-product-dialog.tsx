@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2, Pencil } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import {
@@ -13,10 +13,11 @@ import {
   Footer,
   Header,
   Title,
-  Trigger,
 } from '@/components/dialog-drawer'
 import { Button } from '@/components/ui/button'
 import { updateProduct } from '@/db/actions'
+import { getProductDetail } from '@/db/queries/products'
+import type { Product } from '@/db/schema'
 import {
   type CreateProductInput,
   type UpdateProductSchema,
@@ -24,56 +25,96 @@ import {
 } from '@/db/validators'
 import { type MaterialOption, ProductForm } from './product-form'
 
-export interface EditableProduct extends CreateProductInput {
-  id: string
+interface UpdateProductDialogProps {
+  product: Product | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  materialOptions: MaterialOption[]
 }
 
-interface UpdateProductDialogProps {
-  product: EditableProduct
-  materialOptions: MaterialOption[]
+type ProductDetail = NonNullable<Awaited<ReturnType<typeof getProductDetail>>>
+
+function toFormValues({ product, lines }: ProductDetail): CreateProductInput {
+  return {
+    name: product.name,
+    variant: product.variant ?? undefined,
+    description: product.description ?? undefined,
+    imageUrl: product.imageUrl ?? undefined,
+    value: product.value ?? undefined,
+    laborMinutes: product.laborMinutes,
+    hourlyRate: product.hourlyRate,
+    marginType: product.marginType,
+    marginValue: product.marginValue,
+    materials: lines.map(l => ({
+      materialId: l.materialId,
+      quantity: l.quantity,
+    })),
+  }
 }
 
 export function UpdateProductDialog({
   product,
+  open,
+  onOpenChange,
   materialOptions,
 }: UpdateProductDialogProps) {
-  const [open, setOpen] = React.useState(false)
   const [isPending, startTransition] = React.useTransition()
+  const [isLoading, setIsLoading] = React.useState(false)
   const [serverError, setServerError] = React.useState<string | null>(null)
 
-  const { id, ...defaultValues } = product
   const form = useForm<CreateProductInput, unknown, UpdateProductSchema>({
     resolver: zodResolver(updateProductSchema),
-    defaultValues,
+    defaultValues: {
+      name: '',
+      laborMinutes: 0,
+      hourlyRate: 0,
+      marginType: 'percent',
+      marginValue: 0,
+      materials: [],
+    },
   })
 
-  function onOpenChange(next: boolean) {
-    if (next) {
-      setServerError(null)
-      form.reset(defaultValues)
+  // a lista não traz a composição: busca o detalhe ao abrir
+  React.useEffect(() => {
+    if (!(open && product)) return
+    let cancelled = false
+    setServerError(null)
+    setIsLoading(true)
+    getProductDetail(product.id)
+      .then(detail => {
+        if (cancelled) return
+        if (!detail) {
+          setServerError('Produto não encontrado')
+          return
+        }
+        form.reset(toFormValues(detail))
+      })
+      .catch(() => {
+        if (!cancelled) setServerError('Erro ao carregar o produto')
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-    setOpen(next)
-  }
+  }, [open, product, form])
 
   function onSubmit(input: UpdateProductSchema) {
+    if (!product) return
     setServerError(null)
     startTransition(async () => {
-      const { error } = await updateProduct({ id, ...input })
+      const { error } = await updateProduct({ id: product.id, ...input })
       if (error) {
         setServerError(error)
         return
       }
-      setOpen(false)
+      onOpenChange(false)
     })
   }
 
   return (
     <DialogDrawer open={open} onOpenChange={onOpenChange}>
-      <Trigger>
-        <Button variant="outline">
-          Editar <Pencil size={16} />
-        </Button>
-      </Trigger>
       <Content className="flex flex-col gap-6 sm:max-w-xl">
         <Header className="text-left">
           <Title>Editar produto</Title>
@@ -96,8 +137,10 @@ export function UpdateProductDialog({
                   Cancelar
                 </Button>
               </Close>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="animate-spin" />}
+              <Button type="submit" disabled={isPending || isLoading}>
+                {(isPending || isLoading) && (
+                  <Loader2 className="animate-spin" />
+                )}
                 Salvar
               </Button>
             </Footer>
