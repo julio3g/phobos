@@ -22,6 +22,8 @@ export const searchParamsCacheOrders = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   client: parseAsString.withDefault(''),
+  status: parseAsString.withDefault(''),
+  paymentStatus: parseAsString.withDefault(''),
   sort: getSortingStateParser<SortableOrderColumn>(
     sortableOrderColumns
   ).withDefault([{ id: 'createdAt', desc: true }]),

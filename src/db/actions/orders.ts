@@ -193,6 +193,34 @@ export async function updateOrder(input: UpdateOrderSchema & { id: string }) {
   }
 }
 
+export async function updateOrderStatus(input: {
+  ids: string[]
+  status: UpdateOrderSchema['status']
+}) {
+  await connection()
+  const { isAdminUser, organizationId } = await requireSession()
+  try {
+    if (!isAdminUser)
+      throw new Error('Apenas administradores podem alterar o status')
+
+    await db
+      .update(orders)
+      .set({ status: input.status })
+      .where(
+        and(
+          inArray(orders.id, input.ids),
+          eq(orders.organizationId, organizationId)
+        )
+      )
+
+    revalidateOrdersCache()
+
+    return { data: null, error: null }
+  } catch (err) {
+    return { data: null, error: getErrorMessage(err) }
+  }
+}
+
 export async function deleteOrder(input: { id: string }) {
   await connection()
   const { isAdminUser, organizationId } = await requireSession()

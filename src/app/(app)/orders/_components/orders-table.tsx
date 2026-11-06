@@ -3,10 +3,17 @@
 import * as React from 'react'
 import { DataTable } from '@/components/data-table/data-table'
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
+import { toast } from '@/components/ui/toast'
+import { updateOrderStatus } from '@/db/actions'
 import type { getOrders, OrderListItem } from '@/db/queries/orders'
 import { useDataTable } from '@/hooks/use-data-table'
 import type { DataTableRowAction } from '@/lib/data-table-types'
-import type { ClientOption, ProductOption } from '@/lib/orders'
+import {
+  type ClientOption,
+  type OrderStatus,
+  orderStatusLabels,
+  type ProductOption,
+} from '@/lib/orders'
 import { getOrderTableColumns } from './orders-table-columns'
 import { UpdateOrderDialog } from './update-order-dialog'
 import { ViewOrderDialog } from './view-order-dialog'
@@ -23,9 +30,25 @@ export function OrdersTable({ promises, clients, products }: OrdersTableProps) {
   const [rowAction, setRowAction] =
     React.useState<DataTableRowAction<OrderListItem> | null>(null)
 
-  const columns = React.useMemo(
-    () => getOrderTableColumns({ setRowAction }),
+  const onStatusChange = React.useCallback(
+    async (order: OrderListItem, status: OrderStatus) => {
+      if (order.status === status) return
+      const { error } = await updateOrderStatus({ ids: [order.id], status })
+      if (error) {
+        toast.add({ type: 'error', description: error })
+        return
+      }
+      toast.add({
+        type: 'success',
+        description: `Status: ${orderStatusLabels[status]}`,
+      })
+    },
     []
+  )
+
+  const columns = React.useMemo(
+    () => getOrderTableColumns({ onStatusChange, setRowAction }),
+    [onStatusChange]
   )
 
   const { table } = useDataTable({

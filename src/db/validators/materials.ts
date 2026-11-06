@@ -1,6 +1,5 @@
 import {
   createSearchParamsCache,
-  parseAsBoolean,
   parseAsInteger,
   parseAsString,
 } from 'nuqs/server'
@@ -22,7 +21,7 @@ export const searchParamsCacheMaterials = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   name: parseAsString.withDefault(''),
-  archived: parseAsBoolean.withDefault(false),
+  archived: parseAsString.withDefault(''),
   sort: getSortingStateParser<SortableMaterialColumn>(
     sortableMaterialColumns
   ).withDefault([{ id: 'name', desc: false }]),

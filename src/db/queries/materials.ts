@@ -8,10 +8,12 @@ import {
   desc,
   eq,
   ilike,
+  isNotNull,
   isNull,
 } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
 import { db } from '../connection'
+import { parseListFilter } from '@/lib/filter-params'
 import { materials } from '../schema'
 import type { GetMaterialsSchema, SortableMaterialColumn } from '../validators'
 import { requireSession } from './auth'
@@ -31,9 +33,17 @@ export async function getMaterials(input: GetMaterialsSchema) {
       async () => {
         const offset = (input.page - 1) * input.perPage
 
+        // sem filtro = só ativos; "Arquivados" = só arquivados; os dois = todos
+        const states = parseListFilter(input.archived, ['false', 'true'])
+        const showActive = states.length === 0 || states.includes('false')
+        const showArchived = states.includes('true')
+
         const where = and(
           eq(materials.organizationId, organizationId),
-          input.archived ? undefined : isNull(materials.archivedAt),
+          showActive && !showArchived ? isNull(materials.archivedAt) : undefined,
+          showArchived && !showActive
+            ? isNotNull(materials.archivedAt)
+            : undefined,
           input.name ? ilike(materials.name, `%${input.name}%`) : undefined
         )
 

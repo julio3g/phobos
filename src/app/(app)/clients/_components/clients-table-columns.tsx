@@ -16,6 +16,7 @@ import type { Client } from '@/db/schema'
 import type { DataTableFeatures } from '@/lib/data-table-features'
 import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatCnpj, formatCpf, formatPhone } from '@/lib/format'
+import { personTypeIcons } from '@/lib/icons'
 
 interface GetClientTableColumnsProps {
   setRowAction: React.Dispatch<
@@ -57,15 +58,26 @@ export function getClientTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Tipo" />
       ),
-      cell: ({ row }) =>
-        row.original.personType ? (
-          <Badge variant="outline">
-            {row.original.personType === 'company' ? 'PJ' : 'PF'}
+      cell: ({ row }) => {
+        const type = row.original.personType
+        if (!type) return '—'
+        const Icon = personTypeIcons[type]
+        return (
+          <Badge variant="outline" className="py-1 [&>svg]:size-3.5">
+            <Icon aria-hidden />
+            {type === 'company' ? 'PJ' : 'PF'}
           </Badge>
-        ) : (
-          '—'
-        ),
-      meta: { label: 'Tipo' },
+        )
+      },
+      enableColumnFilter: true,
+      meta: {
+        label: 'Tipo',
+        variant: 'multiSelect',
+        options: [
+          { value: 'individual', label: 'PF', icon: personTypeIcons.individual },
+          { value: 'company', label: 'PJ', icon: personTypeIcons.company },
+        ],
+      },
     },
     {
       id: 'document',

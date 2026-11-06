@@ -10,27 +10,39 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { OrderListItem } from '@/db/queries/orders'
 import type { DataTableFeatures } from '@/lib/data-table-features'
 import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatCurrency, formatShortDate } from '@/lib/format'
+import { orderStatusIcons, paymentStatusIcons } from '@/lib/icons'
 import {
   formatOrderNumber,
+  type OrderStatus,
+  type PaymentStatus,
   orderStatusLabels,
+  orderStatusOptions,
   orderStatusVariants,
   paymentStatusLabels,
+  paymentStatusOptions,
   paymentStatusVariants,
 } from '@/lib/orders'
 
 interface GetOrderTableColumnsProps {
+  onStatusChange: (order: OrderListItem, status: OrderStatus) => void
   setRowAction: React.Dispatch<
     React.SetStateAction<DataTableRowAction<OrderListItem> | null>
   >
 }
 
 export function getOrderTableColumns({
+  onStatusChange,
   setRowAction,
 }: GetOrderTableColumnsProps): ColumnDef<DataTableFeatures, OrderListItem>[] {
   return [
@@ -74,12 +86,27 @@ export function getOrderTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Status" />
       ),
-      cell: ({ row }) => (
-        <Badge variant={orderStatusVariants[row.original.status]}>
-          {orderStatusLabels[row.original.status]}
-        </Badge>
-      ),
-      meta: { label: 'Status' },
+      cell: ({ row }) => {
+        const Icon = orderStatusIcons[row.original.status]
+        return (
+          <Badge
+            variant={orderStatusVariants[row.original.status]}
+            className="py-1 [&>svg]:size-3.5"
+          >
+            <Icon aria-hidden />
+            {orderStatusLabels[row.original.status]}
+          </Badge>
+        )
+      },
+      enableColumnFilter: true,
+      meta: {
+        label: 'Status',
+        variant: 'multiSelect',
+        options: orderStatusOptions.map(o => ({
+          ...o,
+          icon: orderStatusIcons[o.value as OrderStatus],
+        })),
+      },
     },
     {
       id: 'paymentStatus',
@@ -87,12 +114,27 @@ export function getOrderTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Pagamento" />
       ),
-      cell: ({ row }) => (
-        <Badge variant={paymentStatusVariants[row.original.paymentStatus]}>
-          {paymentStatusLabels[row.original.paymentStatus]}
-        </Badge>
-      ),
-      meta: { label: 'Pagamento' },
+      cell: ({ row }) => {
+        const Icon = paymentStatusIcons[row.original.paymentStatus]
+        return (
+          <Badge
+            variant={paymentStatusVariants[row.original.paymentStatus]}
+            className="py-1 [&>svg]:size-3.5"
+          >
+            <Icon aria-hidden />
+            {paymentStatusLabels[row.original.paymentStatus]}
+          </Badge>
+        )
+      },
+      enableColumnFilter: true,
+      meta: {
+        label: 'Pagamento',
+        variant: 'multiSelect',
+        options: paymentStatusOptions.map(o => ({
+          ...o,
+          icon: paymentStatusIcons[o.value as PaymentStatus],
+        })),
+      },
     },
     {
       id: 'total',
@@ -138,6 +180,26 @@ export function getOrderTableColumns({
             >
               Editar
             </DropdownMenuItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuRadioGroup
+                  value={row.original.status}
+                  onValueChange={value =>
+                    onStatusChange(row.original, value as OrderStatus)
+                  }
+                >
+                  {orderStatusOptions.map(option => (
+                    <DropdownMenuRadioItem
+                      key={option.value}
+                      value={option.value}
+                    >
+                      {option.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
