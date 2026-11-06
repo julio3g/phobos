@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import type { Dashboard } from '@/db/queries/dashboard'
+import { orderStatusBarColors, orderStatusIcons } from '@/lib/icons'
 import { type OrderStatus, orderStatusLabels } from '@/lib/orders'
 
 export function OrdersByStatus({
@@ -21,25 +22,34 @@ export function OrdersByStatus({
       <CardHeader>
         <CardTitle>Ordens por status</CardTitle>
         <CardDescription>
-          {total.toLocaleString('pt-BR')} no período
+          {total.toLocaleString('pt-BR')} no período · canceladas não entram no
+          faturamento
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {(Object.keys(orderStatusLabels) as OrderStatus[]).map(status => {
           const count = counts.get(status) ?? 0
           const percent = total > 0 ? (count / total) * 100 : 0
+          const Icon = orderStatusIcons[status]
 
           return (
             <div key={status} className="space-y-1.5">
               <div className="flex items-center justify-between text-sm">
-                <span>{orderStatusLabels[status]}</span>
+                <span className="flex items-center gap-2">
+                  <Icon
+                    className="size-4 text-muted-foreground"
+                    aria-hidden
+                  />
+                  {orderStatusLabels[status]}
+                </span>
                 <span className="text-muted-foreground tabular-nums">
                   {count}
+                  {total > 0 ? ` · ${Math.round(percent)}%` : ''}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-primary"
+                  className={`h-full rounded-full ${orderStatusBarColors[status]}`}
                   style={{ width: `${percent}%` }}
                 />
               </div>

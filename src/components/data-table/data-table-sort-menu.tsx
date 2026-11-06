@@ -197,7 +197,7 @@ function DataTableSortMenuContent<TData extends RowData>({
           }
         >
           <ArrowDownUp className="text-muted-foreground" />
-          Sort
+          Ordenar
           {sorting.length > 0 && (
             <Badge
               variant="secondary"
@@ -219,7 +219,7 @@ function DataTableSortMenuContent<TData extends RowData>({
         >
           <div className="flex flex-col gap-1">
             <h4 id={labelId} className="font-medium leading-none">
-              {sorting.length > 0 ? 'Sort by' : 'No sorting applied'}
+              {sorting.length > 0 ? 'Ordenar por' : 'Nenhuma ordenação'}
             </h4>
             <p
               id={descriptionId}
@@ -229,8 +229,8 @@ function DataTableSortMenuContent<TData extends RowData>({
               )}
             >
               {sorting.length > 0
-                ? 'Modify sorting to organize your rows.'
-                : 'Add sorting to organize your rows.'}
+                ? 'Altere a ordenação para organizar as linhas.'
+                : 'Adicione uma ordenação para organizar as linhas.'}
             </p>
           </div>
           {sorting.length > 0 && (
@@ -261,11 +261,11 @@ function DataTableSortMenuContent<TData extends RowData>({
               onClick={onSortAdd}
               disabled={columns.length === 0}
             >
-              Add sort
+              Adicionar ordenação
             </Button>
             {sorting.length > 0 && (
               <Button variant="outline" onClick={onSortingReset}>
-                Reset sorting
+                Limpar ordenação
               </Button>
             )}
           </div>
@@ -370,9 +370,9 @@ function DataTableSortItem({
           id={fieldListboxId}
           className="w-(--anchor-width)"
         >
-          <FacetedInput placeholder="Search fields..." />
+          <FacetedInput placeholder="Buscar campos..." />
           <FacetedList>
-            <FacetedEmpty>No fields found.</FacetedEmpty>
+            <FacetedEmpty>Nenhum campo encontrado.</FacetedEmpty>
             <FacetedGroup>
               {columns.map(column => (
                 <FacetedItem
@@ -399,7 +399,7 @@ function DataTableSortItem({
       >
         <SelectTrigger
           aria-controls={directionListboxId}
-          aria-label={`${label} sort direction`}
+          aria-label={`Direção da ordenação de ${label}`}
           className="w-24"
         >
           <SelectValue />
@@ -420,7 +420,7 @@ function DataTableSortItem({
       </Select>
       <Button
         aria-controls={sortItemId}
-        aria-label={`Remove ${label} sort`}
+        aria-label={`Remover ordenação de ${label}`}
         variant="outline"
         size="icon"
         className="shrink-0"
@@ -429,7 +429,7 @@ function DataTableSortItem({
         <Trash2 />
       </Button>
       <SortableItemHandle
-        aria-label={`Reorder ${label} sort`}
+        aria-label={`Reordenar ordenação de ${label}`}
         render={<Button variant="outline" size="icon" className="shrink-0" />}
       >
         <GripVertical />

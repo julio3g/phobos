@@ -154,7 +154,7 @@ function DataTableDateFilterContent<TData extends RowData>({
       const hasSelectedDates = selectedDates.from || selectedDates.to
       const dateText = hasSelectedDates
         ? formatDateRange(selectedDates)
-        : 'Select date range'
+        : 'Selecione o período'
 
       return (
         <span className="flex items-center gap-2">
@@ -177,7 +177,7 @@ function DataTableDateFilterContent<TData extends RowData>({
     const hasSelectedDate = selectedDates.length > 0
     const dateText = hasSelectedDate
       ? formatDate(selectedDates[0])
-      : 'Select date'
+      : 'Selecione a data'
 
     return (
       <span className="flex items-center gap-2">
@@ -214,7 +214,7 @@ function DataTableDateFilterContent<TData extends RowData>({
         {label}
       </PopoverTrigger>
       <PopoverContent
-        aria-label={`${title} filter`}
+        aria-label={`Filtro ${title}`}
         dir={dir}
         className="w-auto p-0"
         align="start"
@@ -244,12 +244,12 @@ function DataTableDateFilterContent<TData extends RowData>({
         {hasValue && (
           <div className="border-t p-3">
             <Button
-              aria-label={`Clear ${title} filter`}
+              aria-label={`Limpar filtro ${title}`}
               variant="outline"
               className="w-full"
               onClick={onReset}
             >
-              Clear
+              Limpar
             </Button>
           </div>
         )}

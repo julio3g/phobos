@@ -11,17 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { chartColors } from '@/lib/chart-colors'
 import { formatCurrency } from '@/lib/format'
 
 const config = {
-  revenue: {
-    label: 'Faturamento',
-    colors: { light: ['#6366f1'], dark: ['#818cf8'] },
-  },
-  profit: {
-    label: 'Lucro',
-    colors: { light: ['#10b981'], dark: ['#34d399'] },
-  },
+  revenue: { label: 'Faturamento', colors: chartColors.revenue },
+  profit: { label: 'Lucro', colors: chartColors.profit },
 } satisfies ChartConfig
 
 type RevenuePoint = {
@@ -39,6 +34,8 @@ const compact = new Intl.NumberFormat('pt-BR', {
 const formatDay = (value: string) => `${value.slice(8, 10)}/${value.slice(5, 7)}`
 
 export function RevenueChart({ data }: { data: RevenuePoint[] }) {
+  const hasSales = data.some(point => point.revenue > 0 || point.profit > 0)
+
   return (
     <Card>
       <CardHeader>
@@ -46,7 +43,8 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
         <CardDescription>Por dia, no período selecionado</CardDescription>
       </CardHeader>
       <CardContent>
-        <EChartsAreaChart
+        {hasSales ? (
+          <EChartsAreaChart
           data={data}
           config={config}
           xDataKey="date"
@@ -60,7 +58,12 @@ export function RevenueChart({ data }: { data: RevenuePoint[] }) {
           <EChartsAreaChart.YAxis tickFormatter={value => compact.format(value)} />
           <EChartsAreaChart.Tooltip valueFormatter={formatCurrency} />
           <EChartsAreaChart.Legend />
-        </EChartsAreaChart>
+          </EChartsAreaChart>
+        ) : (
+          <p className="py-16 text-center text-muted-foreground text-sm">
+            Nenhuma venda no período.
+          </p>
+        )}
       </CardContent>
     </Card>
   )
