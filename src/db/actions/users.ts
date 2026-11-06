@@ -17,7 +17,7 @@ import type {
 } from '../validators'
 
 function revalidateUsersCache() {
-  revalidatePath('/users')
+  revalidatePath('/settings/users')
 }
 
 /** Membro da organização logada; erro se o usuário não pertence a ela. */

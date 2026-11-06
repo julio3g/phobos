@@ -1,4 +1,33 @@
+import {
+  createSearchParamsCache,
+  parseAsInteger,
+  parseAsString,
+} from 'nuqs/server'
+import { getSortingStateParser } from '@/lib/data-table-parsers'
 import { z } from '@/lib/z'
+
+export const sortableUserColumns = [
+  'name',
+  'email',
+  'role',
+  'createdAt',
+] as const
+
+export type SortableUserColumn = (typeof sortableUserColumns)[number]
+
+export const searchParamsCacheUsers = createSearchParamsCache({
+  page: parseAsInteger.withDefault(1),
+  perPage: parseAsInteger.withDefault(10),
+  name: parseAsString.withDefault(''),
+  role: parseAsString.withDefault(''),
+  sort: getSortingStateParser<SortableUserColumn>(
+    sortableUserColumns
+  ).withDefault([{ id: 'name', desc: false }]),
+})
+
+export type GetUsersSchema = Awaited<
+  ReturnType<typeof searchParamsCacheUsers.parse>
+>
 
 // owner não é atribuível: nasce com a organização
 const assignableRole = z.enum(['admin', 'member'])
@@ -29,6 +58,12 @@ export const createUserSchema = z.object({
 
 export const updateUserSchema = z.object(profileFields)
 
+// role é opcional: o proprietário não tem permissão editável
+export const updateUserFormSchema = z.object({
+  ...profileFields,
+  role: assignableRole.optional(),
+})
+
 export const updateMemberRoleSchema = z.object({ role: assignableRole })
 
 export const changePasswordSchema = z
@@ -42,6 +77,9 @@ export const changePasswordSchema = z
   })
 
 export type CreateUserSchema = z.infer<typeof createUserSchema>
+export type CreateUserInput = z.input<typeof createUserSchema>
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>
+export type UpdateUserFormInput = z.input<typeof updateUserFormSchema>
+export type UpdateUserFormSchema = z.infer<typeof updateUserFormSchema>
 export type UpdateMemberRoleSchema = z.infer<typeof updateMemberRoleSchema>
 export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>
