@@ -13,6 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -171,7 +172,7 @@ export function OrderForm({
               return (
                 <div
                   key={item.id}
-                  className="grid grid-cols-[1fr_5rem_auto] items-start gap-2 rounded-md border p-2 sm:grid-cols-[1fr_6rem_7rem_7rem_auto]"
+                  className="grid grid-cols-[1fr_5rem_auto] items-start gap-2 rounded-md border p-2 sm:grid-cols-[1fr_6rem_8rem_8rem_auto]"
                 >
                   <FormField
                     control={form.control}
@@ -229,20 +230,26 @@ export function OrderForm({
                     )}
                   />
                   <div className="grid gap-2 text-sm">
-                    <span className="font-medium text-sm leading-none">
+                    <Label htmlFor={`orderItems.${index}.unitPrice`}>
                       Preço:
-                    </span>
-                    <span className="flex h-9 items-center text-muted-foreground">
-                      {formatCurrency(unitPrice)}
-                    </span>
+                    </Label>
+                    <Input
+                      id={`orderItems.${index}.unitPrice`}
+                      readOnly
+                      tabIndex={-1}
+                      className="text-muted-foreground"
+                      value={formatCurrency(unitPrice)}
+                    />
                   </div>
                   <div className="grid gap-2 text-sm">
-                    <span className="font-medium text-sm leading-none">
-                      Total:
-                    </span>
-                    <span className="flex h-9 items-center font-medium">
-                      {formatCurrency(lineTotal)}
-                    </span>
+                    <Label htmlFor={`orderItems.${index}.total`}>Total:</Label>
+                    <Input
+                      id={`orderItems.${index}.total`}
+                      readOnly
+                      tabIndex={-1}
+                      className="font-medium"
+                      value={formatCurrency(lineTotal)}
+                    />
                   </div>
                   <div className="grid gap-2">
                     <span className="h-3.5" aria-hidden />

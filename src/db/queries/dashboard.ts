@@ -24,6 +24,10 @@ async function totalsInRange(organizationId: string, range: DateRangeStrings) {
     .select({
       revenue: numeric(sql`sum(${orders.total})`),
       profit: numeric(sql`sum(${orders.total} - ${orders.costTotal})`),
+      // saldo ainda não pago das ordens do período (sem canceladas)
+      receivable: numeric(
+        sql`sum(greatest(${orders.total} - ${orders.paidAmount}, 0))`
+      ),
       orders: sql<number>`count(*)::int`,
     })
     .from(orders)
@@ -41,6 +45,7 @@ async function totalsInRange(organizationId: string, range: DateRangeStrings) {
   return {
     revenue,
     profit: row?.profit ?? 0,
+    receivable: row?.receivable ?? 0,
     orders: count,
     avgTicket: count > 0 ? revenue / count : 0,
   }
@@ -132,7 +137,7 @@ export async function getDashboard(range: ResolvedRange) {
 
   return unstable_cache(
     () => loadDashboard(organizationId, range),
-    ['dashboard', organizationId, range.from, range.to],
+    ['dashboard-v2', organizationId, range.from, range.to],
     { revalidate: 60, tags: ['orders'] }
   )()
 }

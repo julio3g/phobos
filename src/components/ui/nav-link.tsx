@@ -16,7 +16,7 @@ export function NavLink(props: NavLinkProps) {
       nativeButton={false}
       data-current={usePathname() === props.href}
       className={cn(
-        'gap-1.5 px-2 py-1.5 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-primary data-[current=true]:bg-muted data-[current=true]:text-primary',
+        'gap-1.5 px-2 py-1.5 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-primary data-[current=true]:bg-primary/10 data-[current=true]:text-primary',
         props.className
       )}
     />

@@ -1,10 +1,7 @@
 import { z } from '@/lib/z'
 
-export const currencies = ['BRL', 'USD', 'EUR'] as const
-
 const organizationFields = {
   name: z.string().trim().min(1, { error: 'Nome é obrigatório' }),
-  currency: z.enum(currencies, { error: 'Moeda inválida' }).default('BRL'),
   defaultHourlyRate: z.coerce
     .number<number>()
     .nonnegative({ error: 'Valor/hora não pode ser negativo' })

@@ -59,13 +59,13 @@ export function DataTableToolbar<TData extends RowData>({
           {isFiltered =>
             isFiltered && (
               <Button
-                aria-label="Reset filters"
+                aria-label="Limpar filtros"
                 variant="outline"
                 className="border-dashed"
                 onClick={onReset}
               >
                 <X />
-                Reset
+                Limpar
               </Button>
             )
           }

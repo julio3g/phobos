@@ -192,7 +192,7 @@ function DataTableBody<TData extends RowData>({
                 colSpan={table.getVisibleLeafColumns().length || 1}
                 className="h-24 text-center"
               >
-                No results.
+                Nenhum resultado.
               </TableCell>
             </TableRow>
           </TableBody>

@@ -201,7 +201,7 @@ function DataTableSliderFilterContent<TData extends RowData>({
         ) : null}
       </PopoverTrigger>
       <PopoverContent
-        aria-label={`${title} filter`}
+        aria-label={`Filtro ${title}`}
         dir={dir}
         align="start"
         className="flex w-auto flex-col gap-4"
@@ -273,11 +273,11 @@ function DataTableSliderFilterContent<TData extends RowData>({
           />
         </div>
         <Button
-          aria-label={`Clear ${title} filter`}
+          aria-label={`Limpar filtro ${title}`}
           variant="outline"
           onClick={onReset}
         >
-          Clear
+          Limpar
         </Button>
       </PopoverContent>
     </Popover>

@@ -93,7 +93,11 @@ export function SignUpForm() {
             )}
           />
         ))}
-        <Button disabled={isPending} type="submit">
+        <Button
+          className="w-full cursor-pointer"
+          disabled={isPending}
+          type="submit"
+        >
           Criar conta
         </Button>
       </form>

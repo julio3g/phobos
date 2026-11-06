@@ -10,7 +10,6 @@ export const organizations = pgTable('organizations', {
     .primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
-  currency: text('currency').notNull().default('BRL'),
   defaultHourlyRate: money('default_hourly_rate').notNull().default(0),
   lastOrderNumber: integer('last_order_number').notNull().default(0),
   ...timestamps,

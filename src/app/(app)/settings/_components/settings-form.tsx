@@ -14,23 +14,13 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { toast } from '@/components/ui/toast'
 import { updateOrganization } from '@/db/actions'
 import {
-  currencies,
   type UpdateOrganizationInput,
   type UpdateOrganizationSchema,
   updateOrganizationSchema,
 } from '@/db/validators'
-
-const currencyOptions = currencies.map(c => ({ value: c, label: c }))
 
 export function SettingsForm({
   defaultValues,
@@ -71,49 +61,21 @@ export function SettingsForm({
             </FormItem>
           )}
         />
-        <div className="grid grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="currency"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel id={field.name}>Moeda:</FormLabel>
-                <Select
-                  items={currencyOptions}
-                  value={field.value ?? null}
-                  onValueChange={field.onChange}
-                >
-                  <SelectTrigger id={field.name} className="w-full">
-                    <SelectValue placeholder="Moeda" />
-                  </SelectTrigger>
-                  <SelectContent alignItemWithTrigger={false}>
-                    {currencyOptions.map(o => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="defaultHourlyRate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel id={field.name}>Valor/hora padrão:</FormLabel>
-                <CurrencyInput
-                  value={field.value ?? 0}
-                  onChangeValue={(_, value) => field.onChange(value)}
-                  InputElement={<Input id={field.name} />}
-                />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="defaultHourlyRate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel id={field.name}>Valor/hora padrão:</FormLabel>
+              <CurrencyInput
+                value={field.value ?? 0}
+                onChangeValue={(_, value) => field.onChange(value)}
+                InputElement={<Input id={field.name} />}
+              />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <p className="text-muted-foreground text-sm">
           O valor/hora padrão é sugerido ao criar novos produtos.
         </p>

@@ -9,12 +9,15 @@ import {
   eq,
   getTableColumns,
   ilike,
+  inArray,
   or,
   sql,
 } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
 import { db } from '../connection'
+import { parseListFilter } from '@/lib/filter-params'
 import { clients, orders } from '../schema'
+import { orderStatusEnum, paymentStatusEnum } from '../schema/enums'
 import type { GetOrdersSchema, SortableOrderColumn } from '../validators'
 import { requireSession } from './auth'
 
@@ -36,8 +39,21 @@ export async function getOrders(input: GetOrdersSchema) {
 
         const clientSearch = input.client ? `%${input.client}%` : null
 
+        const statuses = parseListFilter(
+          input.status,
+          orderStatusEnum.enumValues
+        )
+        const paymentStatuses = parseListFilter(
+          input.paymentStatus,
+          paymentStatusEnum.enumValues
+        )
+
         const where = and(
           eq(orders.organizationId, organizationId),
+          statuses.length ? inArray(orders.status, statuses) : undefined,
+          paymentStatuses.length
+            ? inArray(orders.paymentStatus, paymentStatuses)
+            : undefined,
           clientSearch
             ? or(
                 ilike(clients.legalName, clientSearch),

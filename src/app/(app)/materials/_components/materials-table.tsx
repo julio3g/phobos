@@ -3,8 +3,6 @@
 import * as React from 'react'
 import { DataTable } from '@/components/data-table/data-table'
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
-import { toast } from '@/components/ui/toast'
-import { archiveMaterial } from '@/db/actions'
 import type { getMaterials } from '@/db/queries/materials'
 import type { Material } from '@/db/schema'
 import { useDataTable } from '@/hooks/use-data-table'
@@ -22,22 +20,9 @@ export function MaterialsTable({ promises }: MaterialsTableProps) {
   const [rowAction, setRowAction] =
     React.useState<DataTableRowAction<Material> | null>(null)
 
-  const onToggleArchive = React.useCallback(async (material: Material) => {
-    const archived = !material.archivedAt
-    const { error } = await archiveMaterial({ id: material.id, archived })
-    if (error) {
-      toast.add({ type: 'error', description: error })
-      return
-    }
-    toast.add({
-      type: 'success',
-      description: archived ? 'Material arquivado' : 'Material restaurado',
-    })
-  }, [])
-
   const columns = React.useMemo(
-    () => getMaterialTableColumns({ setRowAction, onToggleArchive }),
-    [onToggleArchive]
+    () => getMaterialTableColumns({ setRowAction }),
+    []
   )
 
   const { table } = useDataTable({

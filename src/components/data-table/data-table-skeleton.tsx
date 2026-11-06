@@ -45,7 +45,7 @@ export function DataTableSkeleton({
       className={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}
       {...props}
     >
-      <span className="sr-only">Loading table…</span>
+      <span className="sr-only">Carregando tabela…</span>
       <div
         aria-hidden="true"
         className="flex w-full items-center justify-between gap-2 overflow-auto p-1"

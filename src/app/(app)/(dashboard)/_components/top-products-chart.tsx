@@ -11,13 +11,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { chartColors } from '@/lib/chart-colors'
 import { formatCurrency } from '@/lib/format'
 
 const config = {
-  revenue: {
-    label: 'Faturamento',
-    colors: { light: ['#6366f1'], dark: ['#818cf8'] },
-  },
+  revenue: { label: 'Faturamento', colors: chartColors.revenue },
 } satisfies ChartConfig
 
 type ProductPoint = { name: string; revenue: number }

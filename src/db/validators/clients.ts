@@ -23,6 +23,7 @@ export const searchParamsCacheClients = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   legalName: parseAsString.withDefault(''),
+  personType: parseAsString.withDefault(''),
   sort: getSortingStateParser<SortableClientColumn>(
     sortableClientColumns
   ).withDefault([{ id: 'legalName', desc: false }]),

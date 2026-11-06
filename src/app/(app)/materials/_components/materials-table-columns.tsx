@@ -1,7 +1,7 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { Ellipsis } from 'lucide-react'
+import { ArchiveIcon, Ellipsis } from 'lucide-react'
 import type * as React from 'react'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
@@ -12,20 +12,37 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { toast } from '@/components/ui/toast'
+import { archiveMaterial } from '@/db/actions'
 import type { Material } from '@/db/schema'
 import type { DataTableFeatures } from '@/lib/data-table-features'
 import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatCurrency } from '@/lib/format'
+import { archivedIcons } from '@/lib/icons'
+
+const ArchivedIcon = archivedIcons.true
+const ActiveIcon = archivedIcons.false
+
+async function toggleArchive(material: Material) {
+  const archived = !material.archivedAt
+  const { error } = await archiveMaterial({ id: material.id, archived })
+  if (error) {
+    toast.add({ type: 'error', description: error })
+    return
+  }
+  toast.add({
+    type: 'success',
+    description: archived ? 'Material arquivado' : 'Material restaurado',
+  })
+}
 
 interface GetMaterialTableColumnsProps {
-  onToggleArchive: (material: Material) => void
   setRowAction: React.Dispatch<
     React.SetStateAction<DataTableRowAction<Material> | null>
   >
 }
 
 export function getMaterialTableColumns({
-  onToggleArchive,
   setRowAction,
 }: GetMaterialTableColumnsProps): ColumnDef<DataTableFeatures, Material>[] {
   return [
@@ -38,9 +55,6 @@ export function getMaterialTableColumns({
       cell: ({ row }) => (
         <span className="flex max-w-125 items-center gap-2 truncate font-medium">
           {row.original.name}
-          {row.original.archivedAt ? (
-            <Badge variant="secondary">Arquivado</Badge>
-          ) : null}
         </span>
       ),
       meta: {
@@ -77,6 +91,45 @@ export function getMaterialTableColumns({
       meta: { label: 'Embalagem' },
     },
     {
+      // id = chave do ?archived= na URL (searchParamsCacheMaterials)
+      id: 'archived',
+      accessorFn: row => (row.archivedAt ? 'true' : 'false'),
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} label="Situação" />
+      ),
+      cell: ({ row }) =>
+        row.original.archivedAt ? (
+          <Badge variant="warning" className="py-1 [&>svg]:size-3.5">
+            <ArchivedIcon aria-hidden />
+            Arquivado
+          </Badge>
+        ) : (
+          <Badge variant="success" className="py-1 [&>svg]:size-3.5">
+            <ActiveIcon aria-hidden />
+            Ativo
+          </Badge>
+        ),
+      enableSorting: false,
+      meta: {
+        label: 'Situação',
+        variant: 'multiSelect',
+        options: [
+          {
+            label: 'Ativos',
+            value: 'false',
+            icon: archivedIcons.false,
+          },
+          {
+            label: 'Arquivados',
+            value: 'true',
+            icon: archivedIcons.true,
+          },
+        ],
+        icon: ArchiveIcon,
+      },
+      enableColumnFilter: true,
+    },
+    {
       id: 'unitCost',
       accessorKey: 'unitCost',
       header: ({ column }) => (
@@ -111,7 +164,7 @@ export function getMaterialTableColumns({
             >
               Editar
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onToggleArchive(row.original)}>
+            <DropdownMenuItem onClick={() => toggleArchive(row.original)}>
               {row.original.archivedAt ? 'Restaurar' : 'Arquivar'}
             </DropdownMenuItem>
           </DropdownMenuContent>

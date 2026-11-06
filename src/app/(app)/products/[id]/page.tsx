@@ -10,7 +10,7 @@ import { getProductDetail } from '@/db/queries/products'
 import { formatCurrency } from '@/lib/format'
 import { calcTotalCost } from '@/lib/pricing'
 import { RecalculateButton } from '../_components/recalculate-button'
-import { UpdateProductDialog } from '../_components/update-product-dialog'
+import { EditProductButton } from '../_components/edit-product-button'
 
 export const metadata: Metadata = { title: 'Produto' }
 
@@ -72,24 +72,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
         <div className="flex gap-2">
           <RecalculateButton id={product.id} outdated={outdated} />
-          <UpdateProductDialog
+          <EditProductButton
+            product={product}
             materialOptions={materialOptions}
-            product={{
-              id: product.id,
-              name: product.name,
-              variant: product.variant ?? undefined,
-              description: product.description ?? undefined,
-              imageUrl: product.imageUrl ?? undefined,
-              value: product.value ?? undefined,
-              laborMinutes: product.laborMinutes,
-              hourlyRate: product.hourlyRate,
-              marginType: product.marginType,
-              marginValue: product.marginValue,
-              materials: lines.map(l => ({
-                materialId: l.materialId,
-                quantity: l.quantity,
-              })),
-            }}
           />
         </div>
       </div>

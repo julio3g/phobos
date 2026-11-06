@@ -68,7 +68,6 @@ export async function updateOrganization(input: UpdateOrganizationSchema) {
       .update(organizations)
       .set({
         name: input.name,
-        currency: input.currency,
         defaultHourlyRate: input.defaultHourlyRate,
       })
       .where(eq(organizations.id, organizationId))

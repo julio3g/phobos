@@ -1,5 +1,8 @@
+import { Calculator } from 'lucide-react'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import * as React from 'react'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { getDashboard } from '@/db/queries/dashboard'
 import { searchParamsCacheDashboard } from '@/db/validators'
@@ -32,7 +35,17 @@ export default async function Home(props: HomeProps) {
             Resumo das suas ordens no período
           </p>
         </div>
-        <DateRangeFilter from={range.from} to={range.to} />
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            nativeButton={false}
+            render={
+              <Link href="/calculadora">
+                <Calculator /> Calcular preço
+              </Link>
+            }
+          />
+          <DateRangeFilter from={range.from} to={range.to} />
+        </div>
       </div>
 
       <React.Suspense
@@ -69,10 +82,12 @@ async function DashboardContent({ range }: { range: ResolvedRange }) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {['revenue', 'profit', 'orders', 'ticket'].map(key => (
-          <Skeleton key={key} className="h-32 rounded-xl" />
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {['revenue', 'profit', 'margin', 'orders', 'ticket', 'receivable'].map(
+          key => (
+            <Skeleton key={key} className="h-32 rounded-xl" />
+          )
+        )}
       </div>
       <Skeleton className="h-96 rounded-xl" />
       <div className="grid gap-4 lg:grid-cols-2">

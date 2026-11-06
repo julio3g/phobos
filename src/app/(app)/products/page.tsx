@@ -43,7 +43,10 @@ export default async function ProductsPage(props: ProductsPageProps) {
           />
         }
       >
-        <ProductsTable promises={promises} />
+        <ProductsTable
+          promises={promises}
+          materialOptions={materialOptions}
+        />
       </React.Suspense>
     </div>
   )

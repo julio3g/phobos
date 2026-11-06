@@ -71,7 +71,7 @@ function DataTableSelectHeader<TData extends RowData>({
     >
       {({ checked, indeterminate }) => (
         <Checkbox
-          aria-label="Select all"
+          aria-label="Selecionar tudo"
           className={getHitboxClassName(debug)}
           checked={checked}
           indeterminate={indeterminate}
@@ -98,7 +98,7 @@ function DataTableSelectCell<TData extends RowData>({
     >
       {isSelected => (
         <Checkbox
-          aria-label="Select row"
+          aria-label="Selecionar linha"
           className={getHitboxClassName(debug)}
           checked={isSelected}
           onClick={event => {

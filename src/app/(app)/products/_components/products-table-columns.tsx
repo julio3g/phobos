@@ -1,16 +1,31 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
+import { Ellipsis } from 'lucide-react'
 import Link from 'next/link'
+import type * as React from 'react'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import type { Product } from '@/db/schema'
 import type { DataTableFeatures } from '@/lib/data-table-features'
+import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatCurrency, formatShortDate } from '@/lib/format'
 
-export function getProductTableColumns(): ColumnDef<
-  DataTableFeatures,
-  Product
->[] {
+interface GetProductTableColumnsProps {
+  setRowAction: React.Dispatch<
+    React.SetStateAction<DataTableRowAction<Product> | null>
+  >
+}
+
+export function getProductTableColumns({
+  setRowAction,
+}: GetProductTableColumnsProps): ColumnDef<DataTableFeatures, Product>[] {
   return [
     {
       id: 'name',
@@ -68,6 +83,39 @@ export function getProductTableColumns(): ColumnDef<
       ),
       cell: ({ row }) => formatShortDate(row.original.createdAt),
       meta: { label: 'Criado em' },
+    },
+    {
+      id: 'actions',
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                aria-label="Abrir menu"
+                variant="ghost"
+                className="flex size-8 p-0"
+              />
+            }
+          >
+            <Ellipsis className="size-4" aria-hidden="true" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuItem
+              onClick={() => setRowAction({ row, variant: 'view' })}
+            >
+              Ver
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setRowAction({ row, variant: 'update' })}
+            >
+              Editar
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+      size: 48,
+      enableSorting: false,
+      enableHiding: false,
     },
   ]
 }
