@@ -1,24 +1,27 @@
+import { Gem } from 'lucide-react'
 import Link from 'next/link'
+import { getProfile } from '@/db/queries/users'
 import { siteConfig } from '@/lib/config'
 import { Button } from '../ui/button'
 import { NavLink } from '../ui/nav-link'
 import { ThemeSwitcher } from '../ui/theme-switcher'
+import { UserMenu } from './user-menu'
 
 export async function Header() {
+  const profile = await getProfile()
+
   return (
     <header className="sticky top-0 z-10 border-b bg-background/20 backdrop-blur-md">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="sm"
           nativeButton={false}
-          className="hidden lg:flex"
+          className="gap-2 px-2"
           render={
             <Link href="/">
-              <div className="p-1">
-                <span className="block size-2 rounded-full bg-muted-foreground" />
-              </div>
-              <span className="sr-only">{siteConfig.name}</span>
+              <Gem className="size-5 text-primary" aria-hidden />
+              <span className="font-semibold text-base">{siteConfig.name}</span>
             </Link>
           }
         />
@@ -41,6 +44,7 @@ export async function Header() {
         </div>
         <div className="flex items-center gap-3">
           <ThemeSwitcher />
+          {profile ? <UserMenu user={profile} /> : null}
         </div>
       </nav>
     </header>
