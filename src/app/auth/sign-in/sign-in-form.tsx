@@ -86,7 +86,11 @@ export function SignInForm() {
             </FormItem>
           )}
         />
-        <Button disabled={isPending} type="submit">
+        <Button
+          className="w-full cursor-pointer"
+          disabled={isPending}
+          type="submit"
+        >
           Entrar
         </Button>
       </form>
