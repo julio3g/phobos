@@ -99,12 +99,12 @@ export function getMaterialTableColumns({
       ),
       cell: ({ row }) =>
         row.original.archivedAt ? (
-          <Badge variant="secondary" className="py-1 [&>svg]:size-3.5">
+          <Badge variant="warning" className="py-1 [&>svg]:size-3.5">
             <ArchivedIcon aria-hidden />
             Arquivado
           </Badge>
         ) : (
-          <Badge variant="outline" className="py-1 [&>svg]:size-3.5">
+          <Badge variant="success" className="py-1 [&>svg]:size-3.5">
             <ActiveIcon aria-hidden />
             Ativo
           </Badge>

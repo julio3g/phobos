@@ -20,8 +20,12 @@ export async function Header() {
           className="gap-2 px-2"
           render={
             <Link href="/">
-              <Gem className="size-5 text-primary" aria-hidden />
-              <span className="font-semibold text-base">{siteConfig.name}</span>
+              <span className="flex size-7 items-center justify-center rounded-lg bg-linear-to-br from-primary to-chart-5 text-primary-foreground shadow-sm">
+                <Gem className="size-4" aria-hidden />
+              </span>
+              <span className="bg-linear-to-r from-primary to-chart-5 bg-clip-text font-semibold text-base text-transparent">
+                {siteConfig.name}
+              </span>
             </Link>
           }
         />

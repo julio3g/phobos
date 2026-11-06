@@ -63,7 +63,10 @@ export function getClientTableColumns({
         if (!type) return '—'
         const Icon = personTypeIcons[type]
         return (
-          <Badge variant="outline" className="py-1 [&>svg]:size-3.5">
+          <Badge
+            variant={type === 'company' ? 'info' : 'secondary'}
+            className="py-1 [&>svg]:size-3.5"
+          >
             <Icon aria-hidden />
             {type === 'company' ? 'PJ' : 'PF'}
           </Badge>

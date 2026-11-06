@@ -10,7 +10,7 @@ export default async function AppLayout({
   const verifyIsAuthenticated = await isAuthenticated()
   if (!verifyIsAuthenticated) redirect('/auth/sign-in')
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="flex min-h-screen flex-col bg-[radial-gradient(60rem_22rem_at_50%_-8rem,color-mix(in_oklch,var(--primary)_12%,transparent),transparent)]">
       <Header />
       <div className="flex flex-1 flex-col gap-4 pt-6">{children}</div>
     </main>

@@ -31,16 +31,16 @@ export const paymentStatusOptions = Object.entries(paymentStatusLabels).map(
 
 export const orderStatusVariants: Record<OrderStatus, BadgeVariant> = {
   draft: 'outline',
-  confirmed: 'secondary',
-  in_production: 'default',
-  completed: 'default',
+  confirmed: 'info',
+  in_production: 'warning',
+  completed: 'success',
   cancelled: 'destructive',
 }
 
 export const paymentStatusVariants: Record<PaymentStatus, BadgeVariant> = {
-  pending: 'outline',
-  partial: 'secondary',
-  paid: 'default',
+  pending: 'warning',
+  partial: 'info',
+  paid: 'success',
   refunded: 'destructive',
 }
 

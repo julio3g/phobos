@@ -138,7 +138,12 @@ export function PricingCalculator({
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>1. Insumos</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
+                1
+              </span>
+              Insumos
+            </CardTitle>
             <CardDescription>
               O custo vem do cadastro de materiais (preço ÷ quantidade da
               embalagem)
@@ -240,7 +245,12 @@ export function PricingCalculator({
 
         <Card>
           <CardHeader>
-            <CardTitle>2. Mão de obra</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
+                2
+              </span>
+              Mão de obra
+            </CardTitle>
             <CardDescription>
               Tempo gasto × valor da sua hora de trabalho
             </CardDescription>
@@ -270,7 +280,12 @@ export function PricingCalculator({
 
         <Card>
           <CardHeader>
-            <CardTitle>3. Margem de lucro</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <span className="flex size-6 items-center justify-center rounded-full bg-primary/15 font-semibold text-primary text-xs">
+                3
+              </span>
+              Margem de lucro
+            </CardTitle>
             <CardDescription>
               {marginTypes.find(t => t.value === marginType)?.hint}
             </CardDescription>
@@ -311,10 +326,10 @@ export function PricingCalculator({
       </div>
 
       <aside className="lg:sticky lg:top-20 lg:self-start">
-        <Card className="border-primary/40">
+        <Card className="border-primary/40 bg-linear-to-br from-primary/10 via-card to-card">
           <CardHeader>
             <CardDescription>Preço de venda sugerido</CardDescription>
-            <CardTitle className="font-semibold text-4xl tabular-nums">
+            <CardTitle className="font-semibold text-4xl text-primary tabular-nums">
               {validPrice ? formatCurrency(salePrice) : '—'}
             </CardTitle>
             {validPrice ? null : (

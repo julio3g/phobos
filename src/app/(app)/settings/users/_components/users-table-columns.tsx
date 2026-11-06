@@ -27,6 +27,12 @@ import { type Role, roleLabels, roleOptions } from '@/lib/permissions'
 
 type AssignableRole = (typeof roleOptions)[number]['value']
 
+const roleVariants = {
+  owner: 'default',
+  admin: 'info',
+  member: 'secondary',
+} as const satisfies Record<Role, 'default' | 'info' | 'secondary'>
+
 interface GetUserTableColumnsProps {
   currentUserId: string
   onRoleChange: (user: MemberListItem, role: AssignableRole) => void
@@ -90,8 +96,11 @@ export function getUserTableColumns({
       cell: ({ row }) => {
         const Icon = userRoleIcons[row.original.role]
         return (
-          <Badge variant="outline" className="py-1 [&>svg]:size-3.5">
-            <Icon className="text-muted-foreground" aria-hidden />
+          <Badge
+            variant={roleVariants[row.original.role]}
+            className="py-1 [&>svg]:size-3.5"
+          >
+            <Icon aria-hidden />
             {roleLabels[row.original.role]}
           </Badge>
         )
@@ -113,12 +122,12 @@ export function getUserTableColumns({
       header: 'Situação',
       cell: ({ row }) =>
         row.original.active ? (
-          <Badge variant="outline" className="py-1 [&>svg]:size-3.5">
+          <Badge variant="success" className="py-1 [&>svg]:size-3.5">
             <CircleCheck aria-hidden />
             Ativo
           </Badge>
         ) : (
-          <Badge variant="secondary" className="py-1 [&>svg]:size-3.5">
+          <Badge variant="destructive" className="py-1 [&>svg]:size-3.5">
             <CircleX aria-hidden />
             Inativo
           </Badge>
