@@ -8,17 +8,11 @@ import { Button } from '@/components/ui/button'
 import { getMaterialOptions } from '@/db/queries/materials'
 import { getProductDetail } from '@/db/queries/products'
 import { formatCurrency } from '@/lib/format'
-import { calcTotalCost } from '@/lib/pricing'
-import { RecalculateButton } from '../_components/recalculate-button'
+import { calcTotalCost, marginTypeLabels } from '@/lib/pricing'
 import { EditProductButton } from '../_components/edit-product-button'
+import { RecalculateButton } from '../_components/recalculate-button'
 
 export const metadata: Metadata = { title: 'Produto' }
-
-const marginLabel = {
-  percent: 'Markup sobre o custo',
-  margin: 'Margem sobre a venda',
-  fixed: 'Valor fixo',
-} as const
 
 interface ProductPageProps {
   params: Promise<{ id: string }>
@@ -73,7 +67,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="flex gap-2">
           <RecalculateButton id={product.id} outdated={outdated} />
           <EditProductButton
-            product={product}
+            product={{ ...product, materials: lines }}
             materialOptions={materialOptions}
           />
         </div>
@@ -157,7 +151,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           )}
         </span>
         <span className="text-muted-foreground">
-          {marginLabel[product.marginType]} (
+          {marginTypeLabels[product.marginType]} (
           {product.marginType === 'fixed'
             ? formatCurrency(product.marginValue)
             : `${product.marginValue}%`}
