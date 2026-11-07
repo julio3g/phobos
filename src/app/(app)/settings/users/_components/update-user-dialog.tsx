@@ -61,7 +61,8 @@ export function UpdateUserDialog({
   }, [open, user, form])
 
   // owner e o próprio usuário não têm a permissão alterada (regra da action)
-  const canEditRole = !!user && user.role !== 'owner' && user.id !== currentUserId
+  const canEditRole =
+    !!user && user.role !== 'owner' && user.id !== currentUserId
 
   function onSubmit({ role, ...profile }: UpdateUserFormSchema) {
     if (!user) return
