@@ -15,8 +15,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { MaskInput } from '@/components/ui/mask-input'
 import {
-  type ClientForm as ClientFormType,
   type ClientFormOutput,
+  type ClientForm as ClientFormType,
   useClientAutofill,
 } from './use-client-autofill'
 
@@ -47,7 +47,7 @@ function LookupSpinner({ pending }: { pending: boolean }) {
 
 export function ClientForm({ form, onSubmit, children }: ClientFormProps) {
   const personType = useWatch({ control: form.control, name: 'personType' })
-  const phone = useWatch({ control: form.control, name: 'phone' }) ?? ''
+  const phone = String(useWatch({ control: form.control, name: 'phone' }) ?? '')
 
   const autofill = useClientAutofill(form)
 

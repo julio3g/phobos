@@ -1,22 +1,18 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { Ellipsis } from 'lucide-react'
 import type * as React from 'react'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DataTableRowActions } from '@/components/data-table/data-table-row-actions'
+import { StatusBadge } from '@/components/status-badge'
 import type { Client } from '@/db/schema'
 import type { DataTableFeatures } from '@/lib/data-table-features'
 import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatCnpj, formatCpf, formatPhone } from '@/lib/format'
-import { personTypeIcons } from '@/lib/icons'
+import {
+  getPersonTypeIcon,
+  personTypeOptions,
+} from '@/utils/get-label-and-icons'
 
 interface GetClientTableColumnsProps {
   setRowAction: React.Dispatch<
@@ -58,28 +54,17 @@ export function getClientTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Tipo" />
       ),
-      cell: ({ row }) => {
-        const type = row.original.personType
-        if (!type) return '—'
-        const Icon = personTypeIcons[type]
-        return (
-          <Badge
-            variant={type === 'company' ? 'info' : 'secondary'}
-            className="py-1 [&>svg]:size-3.5"
-          >
-            <Icon aria-hidden />
-            {type === 'company' ? 'PJ' : 'PF'}
-          </Badge>
-        )
-      },
+      cell: ({ row }) =>
+        row.original.personType ? (
+          <StatusBadge meta={getPersonTypeIcon(row.original.personType)} />
+        ) : (
+          '—'
+        ),
       enableColumnFilter: true,
       meta: {
         label: 'Tipo',
         variant: 'multiSelect',
-        options: [
-          { value: 'individual', label: 'PF', icon: personTypeIcons.individual },
-          { value: 'company', label: 'PJ', icon: personTypeIcons.company },
-        ],
+        options: personTypeOptions,
       },
     },
     {
@@ -113,26 +98,11 @@ export function getClientTableColumns({
     {
       id: 'actions',
       cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                aria-label="Abrir menu"
-                variant="ghost"
-                className="flex size-8 p-0"
-              />
-            }
-          >
-            <Ellipsis className="size-4" aria-hidden="true" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem
-              onClick={() => setRowAction({ row, variant: 'update' })}
-            >
-              Editar
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DataTableRowActions
+          onView={() => setRowAction({ row, variant: 'view' })}
+          onUpdate={() => setRowAction({ row, variant: 'update' })}
+          onDelete={() => setRowAction({ row, variant: 'delete' })}
+        />
       ),
       size: 48,
       enableSorting: false,

@@ -20,10 +20,7 @@ import type { Client } from '@/db/schema'
 import { updateClientSchema } from '@/db/validators'
 import { ClientForm } from './client-form'
 import { clientToFormValues, emptyClientValues } from './client-form-values'
-import type {
-  ClientFormOutput,
-  ClientFormValues,
-} from './use-client-autofill'
+import type { ClientFormOutput, ClientFormValues } from './use-client-autofill'
 
 interface UpdateClientDialogProps {
   client: Client | null
