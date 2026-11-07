@@ -13,6 +13,9 @@ import type { CreateMaterialSchema, UpdateMaterialSchema } from '../validators'
 function revalidateMaterialsCache() {
   revalidateTag('materials', 'max')
   revalidatePath('/materials')
+  revalidatePath('/products') // seletor de insumos
+  revalidatePath('/calculadora')
+  revalidatePath('/orders') // criar produto a partir da ordem
 }
 
 // mesma identidade do índice único materials_identity_unique
@@ -128,32 +131,6 @@ export async function archiveMaterial(input: {
       )
       .returning({ id: materials.id })
       .then(rows => takeFirstOrThrow(rows, 'Material não encontrado!'))
-
-    revalidateMaterialsCache()
-
-    return { data: null, error: null }
-  } catch (err) {
-    return { data: null, error: getErrorMessage(err) }
-  }
-}
-
-export async function deleteMaterial(input: { id: string }) {
-  await connection()
-  const { isAdminUser, organizationId } = await requireSession()
-  try {
-    if (!isAdminUser)
-      throw new Error('Apenas administradores podem excluir materiais')
-
-    await assertNotUsed([input.id])
-
-    await db
-      .delete(materials)
-      .where(
-        and(
-          eq(materials.id, input.id),
-          eq(materials.organizationId, organizationId)
-        )
-      )
 
     revalidateMaterialsCache()
 

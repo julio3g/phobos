@@ -22,6 +22,7 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0]
 function revalidateProductsCache() {
   revalidateTag('products', 'max')
   revalidatePath('/products')
+  revalidatePath('/orders') // seletor de produtos
 }
 
 // mesma identidade do índice único products_identity_unique
@@ -267,10 +268,6 @@ export async function recalculateProduct(input: { id: string }) {
   }
 }
 
-export async function deleteProduct(input: { id: string }) {
-  return deleteProducts({ ids: [input.id] })
-}
-
 export async function deleteProducts(input: { ids: string[] }) {
   await connection()
   const { isAdminUser, organizationId } = await requireSession()
@@ -288,7 +285,7 @@ export async function deleteProducts(input: { ids: string[] }) {
 
       throw new Error(
         `Não é possível excluir ${usedIds.size > 1 ? `${usedIds.size} produtos` : '1 produto'}; ` +
-          `${usedIds.size > 1 ? 'estão vinculados a serviços' : 'está vinculado a um serviço'}.`
+          `${usedIds.size > 1 ? 'estão vinculados a ordens' : 'está vinculado a uma ordem'}.`
       )
     }
 

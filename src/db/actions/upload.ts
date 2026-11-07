@@ -46,7 +46,10 @@ export async function uploadImage(formData: FormData) {
       })
     )
 
-    return { data: { url: `${env.CLOUDFLARE_FILE_BASE_PATH}/${key}` }, error: null }
+    return {
+      data: { url: `${env.CLOUDFLARE_FILE_BASE_PATH}/${key}` },
+      error: null,
+    }
   } catch (err) {
     return { data: null, error: getErrorMessage(err) }
   }
