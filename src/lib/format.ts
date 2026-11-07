@@ -16,13 +16,23 @@ export function formatDate(
   }
 }
 
-export function formatCurrency(value: number | null | undefined) {
+/** Moeda BRL. Única fonte de formatação de dinheiro do app. */
+export function formatCurrency(
+  value: number | null | undefined,
+  options: Intl.NumberFormatOptions = {}
+) {
   if (value == null) return '—'
 
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    ...options,
+  })
 }
 
-export function formatShortDate(date: Date | string | number | null | undefined) {
+export function formatShortDate(
+  date: Date | string | number | null | undefined
+) {
   if (!date) return '—'
 
   return new Intl.DateTimeFormat('pt-BR').format(new Date(date))
