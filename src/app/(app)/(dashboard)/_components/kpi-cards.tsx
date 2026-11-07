@@ -130,7 +130,7 @@ function KpiCard({
           </span>
           {label}
         </CardDescription>
-        <CardTitle className="font-semibold text-2xl tabular-nums @[250px]/card:text-3xl">
+        <CardTitle className="font-semibold @[250px]/card:text-3xl text-2xl tabular-nums">
           {value}
         </CardTitle>
         <CardAction>{delta}</CardAction>
@@ -179,7 +179,10 @@ export function KpiCards({
         previousLabel={`${pt(previousMargin)}%`}
         delta={
           hasPreviousMargin && current.revenue > 0 ? (
-            <DeltaBadge change={currentMargin - previousMargin} suffix=" p.p." />
+            <DeltaBadge
+              change={currentMargin - previousMargin}
+              suffix=" p.p."
+            />
           ) : null
         }
       />

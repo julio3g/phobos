@@ -49,7 +49,6 @@ function getPresets() {
 }
 
 interface DateRangeFilterProps {
-  /** Período já resolvido no servidor (yyyy-MM-dd). */
   from: string
   to: string
 }
@@ -99,7 +98,10 @@ export function DateRangeFilter({ from, to }: DateRangeFilterProps) {
           {format(applied.to as Date, LABEL_FORMAT)}
         </span>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-auto max-w-[calc(100vw-1rem)] p-0">
+      <PopoverContent
+        align="end"
+        className="w-auto max-w-[calc(100vw-1rem)] p-0"
+      >
         <div className="flex max-sm:flex-col">
           <div className="max-sm:order-1 max-sm:border-t max-sm:p-2 sm:w-40 sm:border-e sm:py-4">
             <div className="flex flex-wrap gap-1.5 sm:flex-col sm:gap-0 sm:px-2">
