@@ -1,8 +1,8 @@
 'use server'
 
 import {
-  and,
   type AnyColumn,
+  and,
   asc,
   count,
   desc,
@@ -11,10 +11,9 @@ import {
   inArray,
   or,
 } from 'drizzle-orm'
-import { parseListFilter } from '@/lib/filter-params'
 import { db } from '../connection'
 import { members, users } from '../schema'
-import { userRoleEnum } from '../schema/enums'
+import type { userRoleEnum } from '../schema/enums'
 import type { GetUsersSchema, SortableUserColumn } from '../validators'
 import { requireSession } from './auth'
 
@@ -41,11 +40,10 @@ export async function getMembers(input: GetUsersSchema) {
   try {
     const offset = (input.page - 1) * input.perPage
     const search = input.name ? `%${input.name}%` : null
-    const roles = parseListFilter(input.role, userRoleEnum.enumValues)
 
     const where = and(
       eq(members.organizationId, organizationId),
-      roles.length ? inArray(members.role, roles) : undefined,
+      input.role.length ? inArray(members.role, input.role) : undefined,
       search
         ? or(
             ilike(users.name, search),

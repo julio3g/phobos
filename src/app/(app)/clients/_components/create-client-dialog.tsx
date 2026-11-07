@@ -20,10 +20,7 @@ import { createClient } from '@/db/actions'
 import { createClientSchema } from '@/db/validators'
 import { ClientForm } from './client-form'
 import { emptyClientValues } from './client-form-values'
-import type {
-  ClientFormOutput,
-  ClientFormValues,
-} from './use-client-autofill'
+import type { ClientFormOutput, ClientFormValues } from './use-client-autofill'
 
 export function CreateClientDialog({ onSuccess }: { onSuccess?: () => void }) {
   const [open, setOpen] = React.useState(false)

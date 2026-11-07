@@ -3,13 +3,14 @@
 import * as React from 'react'
 import { DataTable } from '@/components/data-table/data-table'
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
+import { DeleteDialog } from '@/components/delete-dialog'
 import { toast } from '@/components/ui/toast'
 import { removeMember, setUserActive, updateMemberRole } from '@/db/actions'
 import type { getMembers, MemberListItem } from '@/db/queries/users'
 import { useDataTable } from '@/hooks/use-data-table'
 import type { DataTableRowAction } from '@/lib/data-table-types'
-import { getUserTableColumns } from './users-table-columns'
 import { UpdateUserDialog } from './update-user-dialog'
+import { getUserTableColumns } from './users-table-columns'
 
 interface UsersTableProps {
   promises: Promise<[Awaited<ReturnType<typeof getMembers>>]>
@@ -48,26 +49,15 @@ export function UsersTable({ promises, currentUserId }: UsersTableProps) {
     })
   }, [])
 
-  const onRemove = React.useCallback(async (user: MemberListItem) => {
-    if (!window.confirm(`Remover ${user.name} da empresa?`)) return
-    const { error } = await removeMember({ id: user.id })
-    if (error) {
-      toast.add({ type: 'error', description: error })
-      return
-    }
-    toast.add({ type: 'success', description: 'Usuário removido' })
-  }, [])
-
   const columns = React.useMemo(
     () =>
       getUserTableColumns({
         currentUserId,
         onRoleChange,
         onToggleActive,
-        onRemove,
         setRowAction,
       }),
-    [currentUserId, onRoleChange, onToggleActive, onRemove]
+    [currentUserId, onRoleChange, onToggleActive]
   )
 
   const { table } = useDataTable({
@@ -83,16 +73,26 @@ export function UsersTable({ promises, currentUserId }: UsersTableProps) {
     clearOnDefault: true,
   })
 
+  const user = rowAction?.row.original ?? null
+  const close = () => setRowAction(null)
+
   return (
     <>
       <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>
       <UpdateUserDialog
-        user={rowAction?.row.original ?? null}
+        user={user}
         currentUserId={currentUserId}
         open={rowAction?.variant === 'update'}
-        onOpenChange={() => setRowAction(null)}
+        onOpenChange={close}
+      />
+      <DeleteDialog
+        open={rowAction?.variant === 'delete'}
+        onOpenChange={close}
+        ids={user ? [user.id] : []}
+        noun={{ one: 'usuário', many: 'usuários' }}
+        onDelete={([id]) => removeMember({ id })}
       />
     </>
   )

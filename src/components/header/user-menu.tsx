@@ -15,14 +15,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { signOut } from '@/db/actions/auth'
-import { roleLabels } from '@/lib/permissions'
+import type { Role } from '@/lib/permissions'
+import { getMemberIcon } from '@/utils/get-label-and-icons'
 
 interface UserMenuProps {
   user: {
     name: string
     email: string
     imageUrl: string | null
-    role: keyof typeof roleLabels
+    role: Role
   }
 }
 
@@ -72,7 +73,9 @@ export function UserMenu({ user }: UserMenuProps) {
               {user.name}
             </span>
             <span className="block truncate text-xs">{user.email}</span>
-            <span className="block text-xs">{roleLabels[user.role]}</span>
+            <span className="block text-xs">
+              {getMemberIcon(user.role).label}
+            </span>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

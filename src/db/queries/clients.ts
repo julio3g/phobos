@@ -13,10 +13,8 @@ import {
   sql,
 } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
-import { parseListFilter } from '@/lib/filter-params'
 import { db } from '../connection'
 import { clients } from '../schema'
-import { personTypeEnum } from '../schema/enums'
 import type { GetClientsSchema, SortableClientColumn } from '../validators'
 import { requireSession } from './auth'
 
@@ -36,15 +34,10 @@ export async function getClients(input: GetClientsSchema) {
         const offset = (input.page - 1) * input.perPage
         const search = input.legalName ? `%${input.legalName}%` : null
 
-        const personTypes = parseListFilter(
-          input.personType,
-          personTypeEnum.enumValues
-        )
-
         const where = and(
           eq(clients.organizationId, organizationId),
-          personTypes.length
-            ? inArray(clients.personType, personTypes)
+          input.personType.length
+            ? inArray(clients.personType, input.personType)
             : undefined,
           search
             ? or(

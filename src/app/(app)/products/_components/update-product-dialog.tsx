@@ -16,8 +16,7 @@ import {
 } from '@/components/dialog-drawer'
 import { Button } from '@/components/ui/button'
 import { updateProduct } from '@/db/actions'
-import { getProductDetail } from '@/db/queries/products'
-import type { Product } from '@/db/schema'
+import type { ProductListItem } from '@/db/queries/products'
 import {
   type CreateProductInput,
   type UpdateProductSchema,
@@ -26,15 +25,13 @@ import {
 import { type MaterialOption, ProductForm } from './product-form'
 
 interface UpdateProductDialogProps {
-  product: Product | null
+  product: ProductListItem | null
   open: boolean
   onOpenChange: (open: boolean) => void
   materialOptions: MaterialOption[]
 }
 
-type ProductDetail = NonNullable<Awaited<ReturnType<typeof getProductDetail>>>
-
-function toFormValues({ product, lines }: ProductDetail): CreateProductInput {
+function toFormValues(product: ProductListItem): CreateProductInput {
   return {
     name: product.name,
     variant: product.variant ?? undefined,
@@ -45,10 +42,7 @@ function toFormValues({ product, lines }: ProductDetail): CreateProductInput {
     hourlyRate: product.hourlyRate,
     marginType: product.marginType,
     marginValue: product.marginValue,
-    materials: lines.map(l => ({
-      materialId: l.materialId,
-      quantity: l.quantity,
-    })),
+    materials: product.materials,
   }
 }
 
@@ -59,7 +53,6 @@ export function UpdateProductDialog({
   materialOptions,
 }: UpdateProductDialogProps) {
   const [isPending, startTransition] = React.useTransition()
-  const [isLoading, setIsLoading] = React.useState(false)
   const [serverError, setServerError] = React.useState<string | null>(null)
 
   const form = useForm<CreateProductInput, unknown, UpdateProductSchema>({
@@ -74,30 +67,11 @@ export function UpdateProductDialog({
     },
   })
 
-  // a lista não traz a composição: busca o detalhe ao abrir
+  // a linha da tabela já traz a composição: não precisa buscar de novo
   React.useEffect(() => {
     if (!(open && product)) return
-    let cancelled = false
     setServerError(null)
-    setIsLoading(true)
-    getProductDetail(product.id)
-      .then(detail => {
-        if (cancelled) return
-        if (!detail) {
-          setServerError('Produto não encontrado')
-          return
-        }
-        form.reset(toFormValues(detail))
-      })
-      .catch(() => {
-        if (!cancelled) setServerError('Erro ao carregar o produto')
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
+    form.reset(toFormValues(product))
   }, [open, product, form])
 
   function onSubmit(input: UpdateProductSchema) {
@@ -137,10 +111,8 @@ export function UpdateProductDialog({
                   Cancelar
                 </Button>
               </Close>
-              <Button type="submit" disabled={isPending || isLoading}>
-                {(isPending || isLoading) && (
-                  <Loader2 className="animate-spin" />
-                )}
+              <Button type="submit" disabled={isPending}>
+                {isPending && <Loader2 className="animate-spin" />}
                 Salvar
               </Button>
             </Footer>

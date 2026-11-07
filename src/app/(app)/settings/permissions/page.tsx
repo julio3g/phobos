@@ -1,17 +1,16 @@
 import { Check, Minus } from 'lucide-react'
 import type { Metadata } from 'next'
 import { Badge } from '@/components/ui/badge'
-import { userRoleIcons } from '@/lib/icons'
 import {
   permissionGroups,
   type Role,
   roleDescriptions,
-  roleLabels,
 } from '@/lib/permissions'
+import { getMemberIcon, memberRoleOptions } from '@/utils/get-label-and-icons'
 
 export const metadata: Metadata = { title: 'Permissões' }
 
-const roles = Object.keys(roleLabels) as Role[]
+const roles: Role[] = memberRoleOptions.map(option => option.value)
 
 export default function PermissionsPage() {
   return (
@@ -26,12 +25,12 @@ export default function PermissionsPage() {
 
       <div className="grid gap-3 md:grid-cols-3">
         {roles.map(role => {
-          const Icon = userRoleIcons[role]
+          const { icon: Icon, label } = getMemberIcon(role)
           return (
             <div key={role} className="space-y-1 rounded-lg border p-3">
               <Badge variant="outline" className="py-1 [&>svg]:size-3.5">
                 <Icon aria-hidden />
-                {roleLabels[role]}
+                {label}
               </Badge>
               <p className="text-muted-foreground text-sm">
                 {roleDescriptions[role]}
@@ -48,7 +47,7 @@ export default function PermissionsPage() {
               <th className="p-2">Ação</th>
               {roles.map(role => (
                 <th key={role} className="p-2 text-center">
-                  {roleLabels[role]}
+                  {getMemberIcon(role).label}
                 </th>
               ))}
             </tr>

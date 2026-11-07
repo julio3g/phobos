@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FilePlus, Loader2 } from 'lucide-react'
+import { FilePlus, Loader2, Plus } from 'lucide-react'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import {
@@ -30,6 +30,8 @@ interface CreateProductDialogProps
   materialOptions: MaterialOption[]
   defaultHourlyRate?: number
   showTrigger?: boolean
+  /** botão pequeno para usar dentro de outros forms */
+  compact?: boolean
   onSuccess?: () => void
 }
 
@@ -37,6 +39,7 @@ export function CreateProductDialog({
   materialOptions,
   defaultHourlyRate = 0,
   showTrigger = true,
+  compact = false,
   onSuccess,
   ...props
 }: CreateProductDialogProps) {
@@ -74,9 +77,15 @@ export function CreateProductDialog({
     <DialogDrawer open={open} onOpenChange={setOpen} {...props}>
       {showTrigger && (
         <Trigger>
-          <Button className="cursor-pointer">
-            Adicionar <FilePlus size={16} />
-          </Button>
+          {compact ? (
+            <Button type="button" variant="outline" size="sm">
+              <Plus className="size-4" /> Novo produto
+            </Button>
+          ) : (
+            <Button className="cursor-pointer">
+              Adicionar <FilePlus size={16} />
+            </Button>
+          )}
         </Trigger>
       )}
       <Content className="flex flex-col gap-6 sm:max-w-xl">

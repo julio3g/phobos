@@ -1,5 +1,11 @@
 import { round2 } from '@/lib/number'
 
+export const marginTypeLabels = {
+  percent: 'Markup sobre o custo',
+  margin: 'Margem sobre a venda',
+  fixed: 'Valor fixo',
+} as const
+
 export type MarginType = 'percent' | 'margin' | 'fixed'
 
 export function calcTotalCost(p: { materialCost: number; laborCost: number }) {

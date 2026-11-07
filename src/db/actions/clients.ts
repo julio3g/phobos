@@ -1,12 +1,12 @@
 'use server'
 
-import { and, eq, ne, or } from 'drizzle-orm'
+import { and, eq, inArray, ne, or } from 'drizzle-orm'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { connection } from 'next/server'
 import { getErrorMessage } from '@/lib/handle-error'
 import { db } from '../connection'
 import { requireSession } from '../queries'
-import { clients } from '../schema'
+import { clients, orders } from '../schema'
 import { takeFirstOrThrow } from '../utils'
 import type { CreateClientSchema, UpdateClientSchema } from '../validators'
 
@@ -33,7 +33,9 @@ async function assertUniqueDocument(
   })
 
   if (existing)
-    throw new Error(`Já existe um cliente com este ${input.cpf ? 'CPF' : 'CNPJ'}`)
+    throw new Error(
+      `Já existe um cliente com este ${input.cpf ? 'CPF' : 'CNPJ'}`
+    )
 }
 
 export async function createClient(input: CreateClientSchema) {
@@ -92,9 +94,44 @@ export async function updateClient({
         state: input.state ?? null,
         zipCode: input.zipCode ?? null,
       })
-      .where(and(eq(clients.id, id), eq(clients.organizationId, organizationId)))
+      .where(
+        and(eq(clients.id, id), eq(clients.organizationId, organizationId))
+      )
       .returning({ id: clients.id })
       .then(rows => takeFirstOrThrow(rows, 'Cliente não encontrado!'))
+
+    revalidateClientsCache()
+
+    return { data: null, error: null }
+  } catch (err) {
+    return { data: null, error: getErrorMessage(err) }
+  }
+}
+
+export async function deleteClients(input: { ids: string[] }) {
+  await connection()
+  const { isAdminUser, organizationId } = await requireSession()
+  try {
+    if (!isAdminUser)
+      throw new Error('Apenas administradores podem excluir clientes')
+
+    const withOrders = await db
+      .selectDistinct({ id: orders.clientId })
+      .from(orders)
+      .where(inArray(orders.clientId, input.ids))
+    if (withOrders.length > 0)
+      throw new Error(
+        `${withOrders.length > 1 ? 'Clientes possuem' : 'Cliente possui'} ordens vinculadas e não pode${withOrders.length > 1 ? 'm' : ''} ser excluído${withOrders.length > 1 ? 's' : ''}.`
+      )
+
+    await db
+      .delete(clients)
+      .where(
+        and(
+          inArray(clients.id, input.ids),
+          eq(clients.organizationId, organizationId)
+        )
+      )
 
     revalidateClientsCache()
 

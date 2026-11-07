@@ -3,12 +3,12 @@
 import { Pencil } from 'lucide-react'
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
-import type { Product } from '@/db/schema'
+import type { ProductListItem } from '@/db/queries/products'
 import type { MaterialOption } from './product-form'
 import { UpdateProductDialog } from './update-product-dialog'
 
 interface EditProductButtonProps {
-  product: Product
+  product: ProductListItem
   materialOptions: MaterialOption[]
 }
 

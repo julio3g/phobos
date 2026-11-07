@@ -26,7 +26,10 @@ async function getOrgMember(organizationId: string, userId: string) {
     .select({ id: members.id, userId: members.userId, role: members.role })
     .from(members)
     .where(
-      and(eq(members.organizationId, organizationId), eq(members.userId, userId))
+      and(
+        eq(members.organizationId, organizationId),
+        eq(members.userId, userId)
+      )
     )
     .then(rows => takeFirstOrThrow(rows, 'Usuário não encontrado!'))
 }
@@ -74,9 +77,7 @@ export async function createUser(input: CreateUserSchema) {
         .returning({ id: users.id, name: users.name, username: users.username })
         .then(takeFirstOrThrow)
 
-      await tx
-        .insert(members)
-        .values({ organizationId, userId: user.id, role })
+      await tx.insert(members).values({ organizationId, userId: user.id, role })
 
       return user
     })

@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { createOrder } from '@/db/actions'
 import { updateOrderSchema } from '@/db/validators'
-import type { ClientOption, ProductOption } from '@/lib/orders'
+import type { ClientOption, ProductOption } from '@/types'
 import {
   OrderForm,
   type OrderFormOutput,
@@ -28,12 +28,14 @@ import {
 interface CreateOrderDialogProps {
   clients: ClientOption[]
   products: ProductOption[]
+  newProductSlot?: React.ReactNode
   onSuccess?: () => void
 }
 
 export function CreateOrderDialog({
   clients,
   products,
+  newProductSlot,
   onSuccess,
 }: CreateOrderDialogProps) {
   const [open, setOpen] = React.useState(false)
@@ -85,6 +87,7 @@ export function CreateOrderDialog({
             onSubmit={onSubmit}
             clients={clients}
             products={products}
+            newProductSlot={newProductSlot}
           >
             {serverError ? (
               <p className="text-destructive text-sm">{serverError}</p>

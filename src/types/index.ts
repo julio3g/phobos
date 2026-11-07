@@ -19,3 +19,16 @@ export interface QueryBuilderOpts {
   distinct?: boolean
   nullish?: boolean
 }
+
+// opções para selects (clientes e produtos nos formulários de ordem)
+export interface ClientOption {
+  id: string
+  name: string
+}
+
+export interface ProductOption {
+  id: string
+  name: string
+  variant: string | null
+  salePrice: number
+}

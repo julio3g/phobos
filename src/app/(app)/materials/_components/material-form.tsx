@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { formatCurrency } from '@/lib/format'
 
 interface MaterialFormProps<T extends FieldValues, O extends FieldValues = T>
   extends Omit<React.ComponentPropsWithRef<'form'>, 'onSubmit'> {
@@ -40,13 +41,6 @@ const unitOptions = [
   { value: 'ml', label: 'Mililitro (ml)' },
   { value: 'pair', label: 'Par' },
 ]
-
-const brl = (n: number) =>
-  n.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    maximumFractionDigits: 4,
-  })
 
 export function MaterialForm<T extends FieldValues, O extends FieldValues = T>({
   form,
@@ -66,7 +60,14 @@ export function MaterialForm<T extends FieldValues, O extends FieldValues = T>({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+      <form
+        onSubmit={e => {
+          // dialog aninhado: não deixa o submit subir para o form pai
+          e.stopPropagation()
+          form.handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-3"
+      >
         <FormField
           control={form.control}
           name={'name' as FieldPath<T>}
@@ -186,7 +187,9 @@ export function MaterialForm<T extends FieldValues, O extends FieldValues = T>({
         <p className="text-muted-foreground text-sm">
           Preço e quantidade da embalagem{unitLabel ? ` (em ${unitLabel})` : ''}
           . Custo por {unitLabel ?? 'unidade'}:{' '}
-          <strong className="text-foreground">{brl(unitCost)}</strong>
+          <strong className="text-foreground">
+            {formatCurrency(unitCost, { maximumFractionDigits: 4 })}
+          </strong>
         </p>
 
         <FormField

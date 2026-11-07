@@ -1,41 +1,35 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { Ellipsis } from 'lucide-react'
 import type * as React from 'react'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { DataTableRowActions } from '@/components/data-table/data-table-row-actions'
+import { StatusBadge } from '@/components/status-badge'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { OrderListItem } from '@/db/queries/orders'
+import type { Order } from '@/db/schema'
 import type { DataTableFeatures } from '@/lib/data-table-features'
 import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatCurrency, formatShortDate } from '@/lib/format'
-import { orderStatusIcons, paymentStatusIcons } from '@/lib/icons'
 import {
   formatOrderNumber,
-  type OrderStatus,
-  type PaymentStatus,
-  orderStatusLabels,
+  getOrderStatusIcon,
+  getPaymentStatusIcon,
   orderStatusOptions,
-  orderStatusVariants,
-  paymentStatusLabels,
   paymentStatusOptions,
-  paymentStatusVariants,
-} from '@/lib/orders'
+} from '@/utils/get-label-and-icons'
 
 interface GetOrderTableColumnsProps {
-  onStatusChange: (order: OrderListItem, status: OrderStatus) => void
+  onStatusChange: (
+    order: OrderListItem,
+    change: { status?: Order['status']; paymentStatus?: Order['paymentStatus'] }
+  ) => void
   setRowAction: React.Dispatch<
     React.SetStateAction<DataTableRowAction<OrderListItem> | null>
   >
@@ -61,15 +55,14 @@ export function getOrderTableColumns({
       meta: { label: 'Nº' },
     },
     {
-      // id = chave do ?client= na URL (searchParamsCacheOrders)
       id: 'client',
-      accessorFn: row => row.clientName,
+      accessorFn: row => row.client.clientName,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Cliente" />
       ),
       cell: ({ row }) => (
         <span className="block max-w-80 truncate">
-          {row.original.clientName}
+          {row.original.client.clientName}
         </span>
       ),
       enableSorting: false,
@@ -86,26 +79,14 @@ export function getOrderTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Status" />
       ),
-      cell: ({ row }) => {
-        const Icon = orderStatusIcons[row.original.status]
-        return (
-          <Badge
-            variant={orderStatusVariants[row.original.status]}
-            className="py-1 [&>svg]:size-3.5"
-          >
-            <Icon aria-hidden />
-            {orderStatusLabels[row.original.status]}
-          </Badge>
-        )
-      },
+      cell: ({ row }) => (
+        <StatusBadge meta={getOrderStatusIcon(row.original.status)} />
+      ),
       enableColumnFilter: true,
       meta: {
         label: 'Status',
         variant: 'multiSelect',
-        options: orderStatusOptions.map(o => ({
-          ...o,
-          icon: orderStatusIcons[o.value as OrderStatus],
-        })),
+        options: orderStatusOptions,
       },
     },
     {
@@ -114,26 +95,14 @@ export function getOrderTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Pagamento" />
       ),
-      cell: ({ row }) => {
-        const Icon = paymentStatusIcons[row.original.paymentStatus]
-        return (
-          <Badge
-            variant={paymentStatusVariants[row.original.paymentStatus]}
-            className="py-1 [&>svg]:size-3.5"
-          >
-            <Icon aria-hidden />
-            {paymentStatusLabels[row.original.paymentStatus]}
-          </Badge>
-        )
-      },
+      cell: ({ row }) => (
+        <StatusBadge meta={getPaymentStatusIcon(row.original.paymentStatus)} />
+      ),
       enableColumnFilter: true,
       meta: {
         label: 'Pagamento',
         variant: 'multiSelect',
-        options: paymentStatusOptions.map(o => ({
-          ...o,
-          icon: paymentStatusIcons[o.value as PaymentStatus],
-        })),
+        options: paymentStatusOptions,
       },
     },
     {
@@ -157,51 +126,56 @@ export function getOrderTableColumns({
     {
       id: 'actions',
       cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                aria-label="Abrir menu"
-                variant="ghost"
-                className="flex size-8 p-0"
-              />
-            }
-          >
-            <Ellipsis className="size-4" aria-hidden="true" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem
-              onClick={() => setRowAction({ row, variant: 'view' })}
-            >
-              Ver
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => setRowAction({ row, variant: 'update' })}
-            >
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup
-                  value={row.original.status}
-                  onValueChange={value =>
-                    onStatusChange(row.original, value as OrderStatus)
-                  }
-                >
-                  {orderStatusOptions.map(option => (
-                    <DropdownMenuRadioItem
-                      key={option.value}
-                      value={option.value}
-                    >
-                      {option.label}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DataTableRowActions
+          onView={() => setRowAction({ row, variant: 'view' })}
+          onUpdate={() => setRowAction({ row, variant: 'update' })}
+          onDelete={() => setRowAction({ row, variant: 'delete' })}
+        >
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={row.original.status}
+                onValueChange={value =>
+                  onStatusChange(row.original, {
+                    status: value as Order['status'],
+                  })
+                }
+              >
+                {orderStatusOptions.map(option => (
+                  <DropdownMenuRadioItem
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Pagamento</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={row.original.paymentStatus}
+                onValueChange={value =>
+                  onStatusChange(row.original, {
+                    paymentStatus: value as Order['paymentStatus'],
+                  })
+                }
+              >
+                {paymentStatusOptions.map(option => (
+                  <DropdownMenuRadioItem
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        </DataTableRowActions>
       ),
       size: 48,
       enableSorting: false,

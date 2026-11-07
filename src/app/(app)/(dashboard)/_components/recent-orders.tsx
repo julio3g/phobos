@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
+import { StatusBadge } from '@/components/status-badge'
 import {
   Card,
   CardAction,
@@ -10,26 +10,10 @@ import {
 } from '@/components/ui/card'
 import type { Dashboard } from '@/db/queries/dashboard'
 import { formatCurrency, formatShortDate } from '@/lib/format'
-import { orderStatusIcons } from '@/lib/icons'
 import {
   formatOrderNumber,
-  type OrderStatus,
-  orderStatusLabels,
-  orderStatusVariants,
-} from '@/lib/orders'
-
-function StatusBadge({ status }: { status: OrderStatus }) {
-  const Icon = orderStatusIcons[status]
-  return (
-    <Badge
-      variant={orderStatusVariants[status]}
-      className="py-1 [&>svg]:size-3.5"
-    >
-      <Icon aria-hidden />
-      {orderStatusLabels[status]}
-    </Badge>
-  )
-}
+  getOrderStatusIcon,
+} from '@/utils/get-label-and-icons'
 
 export function RecentOrders({
   recentOrders,
@@ -69,7 +53,7 @@ export function RecentOrders({
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
-                  <StatusBadge status={order.status} />
+                  <StatusBadge meta={getOrderStatusIcon(order.status)} />
                   <span className="w-24 text-right font-medium text-sm tabular-nums">
                     {formatCurrency(order.total)}
                   </span>

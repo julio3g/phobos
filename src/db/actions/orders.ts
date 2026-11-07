@@ -8,7 +8,7 @@ import { getErrorMessage } from '@/lib/handle-error'
 import { round2 } from '@/lib/number'
 import { db } from '../connection'
 import { requireSession } from '../queries'
-import { orderItems, orders } from '../schema'
+import { type Order, orderItems, orders } from '../schema'
 import { takeFirstOrThrow } from '../utils'
 import type { CreateOrderSchema, UpdateOrderSchema } from '../validators'
 
@@ -181,7 +181,10 @@ export async function updateOrder(input: UpdateOrderSchema & { id: string }) {
           notes: input.notes,
         })
         .where(
-          and(eq(orders.id, order.id), eq(orders.organizationId, organizationId))
+          and(
+            eq(orders.id, order.id),
+            eq(orders.organizationId, organizationId)
+          )
         )
     })
 
@@ -193,9 +196,11 @@ export async function updateOrder(input: UpdateOrderSchema & { id: string }) {
   }
 }
 
+/** Muda status e/ou pagamento de várias ordens de uma vez. */
 export async function updateOrderStatus(input: {
   ids: string[]
-  status: UpdateOrderSchema['status']
+  status?: Order['status']
+  paymentStatus?: Order['paymentStatus']
 }) {
   await connection()
   const { isAdminUser, organizationId } = await requireSession()
@@ -205,33 +210,15 @@ export async function updateOrderStatus(input: {
 
     await db
       .update(orders)
-      .set({ status: input.status })
+      .set({
+        ...(input.status && { status: input.status }),
+        ...(input.paymentStatus && { paymentStatus: input.paymentStatus }),
+      })
       .where(
         and(
           inArray(orders.id, input.ids),
           eq(orders.organizationId, organizationId)
         )
-      )
-
-    revalidateOrdersCache()
-
-    return { data: null, error: null }
-  } catch (err) {
-    return { data: null, error: getErrorMessage(err) }
-  }
-}
-
-export async function deleteOrder(input: { id: string }) {
-  await connection()
-  const { isAdminUser, organizationId } = await requireSession()
-  try {
-    if (!isAdminUser)
-      throw new Error('Apenas administradores podem excluir ordens')
-
-    await db
-      .delete(orders)
-      .where(
-        and(eq(orders.id, input.id), eq(orders.organizationId, organizationId))
       )
 
     revalidateOrdersCache()

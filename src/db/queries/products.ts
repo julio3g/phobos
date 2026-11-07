@@ -37,13 +37,16 @@ export async function getProducts(input: GetProductsSchema) {
         ]
 
         const { data, total } = await db.transaction(async tx => {
-          const data = await tx
-            .select()
-            .from(products)
-            .where(where)
-            .orderBy(...orderBy)
-            .limit(input.perPage)
-            .offset(offset)
+          // já traz a composição: o dialog de edição não busca por id
+          const data = await tx.query.products.findMany({
+            where,
+            orderBy: () => orderBy,
+            limit: input.perPage,
+            offset,
+            with: {
+              materials: { columns: { materialId: true, quantity: true } },
+            },
+          })
 
           const total = await tx
             .select({ count: count() })
@@ -64,6 +67,10 @@ export async function getProducts(input: GetProductsSchema) {
     return { data: [], pageCount: 0 }
   }
 }
+
+export type ProductListItem = Awaited<
+  ReturnType<typeof getProducts>
+>['data'][number]
 
 // Implementar paginação para depois usar scroll infinito no popover
 export async function getAllProducts() {
@@ -90,7 +97,10 @@ export async function getProductDetail(id: string) {
   const { organizationId } = await requireSession()
 
   const product = await db.query.products.findFirst({
-    where: and(eq(products.id, id), eq(products.organizationId, organizationId)),
+    where: and(
+      eq(products.id, id),
+      eq(products.organizationId, organizationId)
+    ),
   })
   if (!product) return null
 

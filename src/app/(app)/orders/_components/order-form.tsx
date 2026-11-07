@@ -4,6 +4,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import type * as React from 'react'
 import { CurrencyInput } from 'react-currency-mask'
 import { type UseFormReturn, useFieldArray, useWatch } from 'react-hook-form'
+import { Combobox } from '@/components/combobox'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -24,13 +25,12 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import type { UpdateOrderInput, UpdateOrderSchema } from '@/db/validators'
 import { formatCurrency } from '@/lib/format'
+import { round2 } from '@/lib/number'
+import type { ClientOption, ProductOption } from '@/types'
 import {
-  type ClientOption,
   orderStatusOptions,
   paymentStatusOptions,
-  type ProductOption,
-} from '@/lib/orders'
-import { round2 } from '@/lib/number'
+} from '@/utils/get-label-and-icons'
 
 // create e update usam o mesmo form; `status` só aparece no update
 export type OrderFormValues = UpdateOrderInput
@@ -46,6 +46,8 @@ interface OrderFormProps
   /** Preço gravado na ordem (produto -> unitPrice). Na edição, vale sobre o cadastro. */
   snapshotPrices?: Record<string, number>
   showStatus?: boolean
+  /** ex.: <CreateProductDialog compact /> renderizado pela page */
+  newProductSlot?: React.ReactNode
 }
 
 export function OrderForm({
@@ -56,6 +58,7 @@ export function OrderForm({
   products,
   snapshotPrices,
   showStatus = false,
+  newProductSlot,
 }: OrderFormProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -98,22 +101,14 @@ export function OrderForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel id={field.name}>Cliente:</FormLabel>
-                <Select
-                  items={clients.map(c => ({ value: c.id, label: c.name }))}
-                  value={field.value || null}
+                <Combobox
+                  id={field.name}
+                  options={clients.map(c => ({ value: c.id, label: c.name }))}
+                  value={field.value}
                   onValueChange={field.onChange}
-                >
-                  <SelectTrigger id={field.name} className="w-full">
-                    <SelectValue placeholder="Selecione o cliente" />
-                  </SelectTrigger>
-                  <SelectContent alignItemWithTrigger={false}>
-                    {clients.map(client => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Selecione o cliente"
+                  searchPlaceholder="Buscar cliente..."
+                />
                 <FormMessage />
               </FormItem>
             )}
@@ -151,14 +146,17 @@ export function OrderForm({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="font-medium text-sm">Itens</span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => append({ productId: '', quantity: 1 })}
-            >
-              <Plus className="size-4" /> Adicionar item
-            </Button>
+            <div className="flex gap-2">
+              {newProductSlot}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => append({ productId: '', quantity: 1 })}
+              >
+                <Plus className="size-4" /> Adicionar item
+              </Button>
+            </div>
           </div>
 
           <div className="max-h-[40vh] space-y-3 overflow-y-auto pr-1">
@@ -180,25 +178,14 @@ export function OrderForm({
                     render={({ field }) => (
                       <FormItem className="col-span-3 sm:col-span-1">
                         <FormLabel id={field.name}>Produto:</FormLabel>
-                        <Select
-                          items={productItems}
-                          value={field.value || null}
+                        <Combobox
+                          id={field.name}
+                          options={productItems}
+                          value={field.value}
                           onValueChange={field.onChange}
-                        >
-                          <SelectTrigger id={field.name} className="w-full">
-                            <SelectValue placeholder="Selecione o produto" />
-                          </SelectTrigger>
-                          <SelectContent alignItemWithTrigger={false}>
-                            {productItems.map(option => (
-                              <SelectItem
-                                key={option.value}
-                                value={option.value}
-                              >
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          placeholder="Selecione o produto"
+                          searchPlaceholder="Buscar produto..."
+                        />
                         <FormMessage />
                       </FormItem>
                     )}
@@ -221,9 +208,7 @@ export function OrderForm({
                               ? ''
                               : (field.value ?? '')
                           }
-                          onChange={e =>
-                            field.onChange(e.target.valueAsNumber)
-                          }
+                          onChange={e => field.onChange(e.target.valueAsNumber)}
                         />
                         <FormMessage />
                       </FormItem>

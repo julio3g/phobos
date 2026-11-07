@@ -1,10 +1,13 @@
 import {
   createSearchParamsCache,
+  parseAsArrayOf,
   parseAsInteger,
   parseAsString,
+  parseAsStringLiteral,
 } from 'nuqs/server'
 import { getSortingStateParser } from '@/lib/data-table-parsers'
 import { z } from '@/lib/z'
+import { orders } from '../schema'
 import { orderStatusEnum, paymentStatusEnum } from '../schema/enums'
 
 // colunas permitidas em ?sort= (ids de coluna da tabela)
@@ -22,8 +25,12 @@ export const searchParamsCacheOrders = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   client: parseAsString.withDefault(''),
-  status: parseAsString.withDefault(''),
-  paymentStatus: parseAsString.withDefault(''),
+  status: parseAsArrayOf(
+    parseAsStringLiteral(orders.status.enumValues)
+  ).withDefault([]),
+  paymentStatus: parseAsArrayOf(
+    parseAsStringLiteral(orders.paymentStatus.enumValues)
+  ).withDefault([]),
   sort: getSortingStateParser<SortableOrderColumn>(
     sortableOrderColumns
   ).withDefault([{ id: 'createdAt', desc: true }]),

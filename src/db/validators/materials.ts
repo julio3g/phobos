@@ -1,7 +1,9 @@
 import {
   createSearchParamsCache,
+  parseAsArrayOf,
   parseAsInteger,
   parseAsString,
+  parseAsStringLiteral,
 } from 'nuqs/server'
 import { unitEnum } from '@/db/schema/enums'
 import { getSortingStateParser } from '@/lib/data-table-parsers'
@@ -21,7 +23,10 @@ export const searchParamsCacheMaterials = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   name: parseAsString.withDefault(''),
-  archived: parseAsString.withDefault(''),
+  // 'false' = ativos, 'true' = arquivados; vazio = só ativos
+  archived: parseAsArrayOf(parseAsStringLiteral(['false', 'true'])).withDefault(
+    []
+  ),
   sort: getSortingStateParser<SortableMaterialColumn>(
     sortableMaterialColumns
   ).withDefault([{ id: 'name', desc: false }]),

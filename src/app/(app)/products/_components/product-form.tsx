@@ -4,6 +4,8 @@ import { Plus, Trash2 } from 'lucide-react'
 import type * as React from 'react'
 import { CurrencyInput } from 'react-currency-mask'
 import { type UseFormReturn, useFieldArray, useWatch } from 'react-hook-form'
+import { CreateMaterialDialog } from '@/app/(app)/materials/_components/create-material-dialog'
+import { Combobox } from '@/components/combobox'
 import { ImageUpload } from '@/components/image-upload'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,13 +18,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { MaskInput } from '@/components/ui/mask-input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import type { CreateProductInput, CreateProductSchema } from '@/db/validators'
 import { formatCurrency } from '@/lib/format'
 import {
@@ -117,7 +112,14 @@ export function ProductForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+      <form
+        onSubmit={e => {
+          // dialog aninhado: não deixa o submit subir para o form pai
+          e.stopPropagation()
+          form.handleSubmit(onSubmit)(e)
+        }}
+        className="space-y-3"
+      >
         <FormField
           control={form.control}
           name="name"
@@ -181,15 +183,18 @@ export function ProductForm({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label>Composição (insumos):</Label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={materialOptions.length === 0}
-              onClick={() => append({ materialId: '', quantity: 1 })}
-            >
-              <Plus className="size-4" /> Insumo
-            </Button>
+            <div className="flex gap-2">
+              <CreateMaterialDialog compact />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={materialOptions.length === 0}
+                onClick={() => append({ materialId: '', quantity: 1 })}
+              >
+                <Plus className="size-4" /> Insumo
+              </Button>
+            </div>
           </div>
           {materialOptions.length === 0 ? (
             <p className="text-muted-foreground text-sm">
@@ -212,22 +217,13 @@ export function ProductForm({
                   name={`materials.${index}.materialId`}
                   render={({ field }) => (
                     <FormItem>
-                      <Select
-                        items={selectItems}
-                        value={field.value || null}
+                      <Combobox
+                        options={selectItems}
+                        value={field.value}
                         onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Material" />
-                        </SelectTrigger>
-                        <SelectContent alignItemWithTrigger={false}>
-                          {selectItems.map(o => (
-                            <SelectItem key={o.value} value={o.value}>
-                              {o.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Material"
+                        searchPlaceholder="Buscar material..."
+                      />
                       <p className="text-muted-foreground text-xs">
                         {option
                           ? `${formatCurrency(lineCost)} (${formatCurrency(option.unitCost)}/${option.unit})`

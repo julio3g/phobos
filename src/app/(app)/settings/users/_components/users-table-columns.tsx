@@ -1,43 +1,35 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { CircleCheck, CircleX, Ellipsis } from 'lucide-react'
 import type * as React from 'react'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { DataTableRowActions } from '@/components/data-table/data-table-row-actions'
+import { StatusBadge } from '@/components/status-badge'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { MemberListItem } from '@/db/queries/users'
 import type { DataTableFeatures } from '@/lib/data-table-features'
 import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatShortDate } from '@/lib/format'
-import { userRoleIcons } from '@/lib/icons'
-import { type Role, roleLabels, roleOptions } from '@/lib/permissions'
+import { roleOptions } from '@/lib/permissions'
+import {
+  getActiveIcon,
+  getMemberIcon,
+  memberRoleOptions,
+} from '@/utils/get-label-and-icons'
 
 type AssignableRole = (typeof roleOptions)[number]['value']
-
-const roleVariants = {
-  owner: 'default',
-  admin: 'info',
-  member: 'secondary',
-} as const satisfies Record<Role, 'default' | 'info' | 'secondary'>
 
 interface GetUserTableColumnsProps {
   currentUserId: string
   onRoleChange: (user: MemberListItem, role: AssignableRole) => void
   onToggleActive: (user: MemberListItem) => void
-  onRemove: (user: MemberListItem) => void
   setRowAction: React.Dispatch<
     React.SetStateAction<DataTableRowAction<MemberListItem> | null>
   >
@@ -47,7 +39,6 @@ export function getUserTableColumns({
   currentUserId,
   onRoleChange,
   onToggleActive,
-  onRemove,
   setRowAction,
 }: GetUserTableColumnsProps): ColumnDef<DataTableFeatures, MemberListItem>[] {
   return [
@@ -93,45 +84,23 @@ export function getUserTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Permissão" />
       ),
-      cell: ({ row }) => {
-        const Icon = userRoleIcons[row.original.role]
-        return (
-          <Badge
-            variant={roleVariants[row.original.role]}
-            className="py-1 [&>svg]:size-3.5"
-          >
-            <Icon aria-hidden />
-            {roleLabels[row.original.role]}
-          </Badge>
-        )
-      },
+      cell: ({ row }) => (
+        <StatusBadge meta={getMemberIcon(row.original.role)} />
+      ),
       enableColumnFilter: true,
       meta: {
         label: 'Permissão',
         variant: 'multiSelect',
-        options: (Object.keys(roleLabels) as Role[]).map(role => ({
-          label: roleLabels[role],
-          value: role,
-          icon: userRoleIcons[role],
-        })),
+        options: memberRoleOptions,
       },
     },
     {
       id: 'active',
       accessorKey: 'active',
       header: 'Situação',
-      cell: ({ row }) =>
-        row.original.active ? (
-          <Badge variant="success" className="py-1 [&>svg]:size-3.5">
-            <CircleCheck aria-hidden />
-            Ativo
-          </Badge>
-        ) : (
-          <Badge variant="destructive" className="py-1 [&>svg]:size-3.5">
-            <CircleX aria-hidden />
-            Inativo
-          </Badge>
-        ),
+      cell: ({ row }) => (
+        <StatusBadge meta={getActiveIcon(row.original.active)} />
+      ),
       enableSorting: false,
       meta: { label: 'Situação' },
     },
@@ -148,68 +117,52 @@ export function getUserTableColumns({
       id: 'actions',
       cell: ({ row }) => {
         const user = row.original
-        const isSelf = user.id === currentUserId
-        const isOwner = user.role === 'owner'
+        const isFixed = user.id === currentUserId || user.role === 'owner'
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  aria-label="Abrir menu"
-                  variant="ghost"
-                  className="flex size-8 p-0"
-                />
-              }
-            >
-              <Ellipsis className="size-4" aria-hidden="true" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem
-                onClick={() => setRowAction({ row, variant: 'update' })}
-              >
-                Editar
+          <DataTableRowActions
+            onUpdate={() => setRowAction({ row, variant: 'update' })}
+            onDelete={
+              isFixed
+                ? undefined
+                : () => setRowAction({ row, variant: 'delete' })
+            }
+          >
+            {isFixed ? (
+              <DropdownMenuItem disabled>
+                {user.role === 'owner'
+                  ? 'Permissão do proprietário'
+                  : 'Sua permissão'}{' '}
+                (fixa)
               </DropdownMenuItem>
-              {isSelf || isOwner ? (
-                <DropdownMenuItem disabled>
-                  {isOwner ? 'Permissão do proprietário' : 'Sua permissão'} (fixa)
+            ) : (
+              <>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Permissão</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuRadioGroup
+                      value={user.role}
+                      onValueChange={value =>
+                        onRoleChange(user, value as AssignableRole)
+                      }
+                    >
+                      {roleOptions.map(option => (
+                        <DropdownMenuRadioItem
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {option.label}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuItem onClick={() => onToggleActive(user)}>
+                  {user.active ? 'Desativar' : 'Ativar'}
                 </DropdownMenuItem>
-              ) : (
-                <>
-                  <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>Permissão</DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuRadioGroup
-                        value={user.role}
-                        onValueChange={value =>
-                          onRoleChange(user, value as AssignableRole)
-                        }
-                      >
-                        {roleOptions.map(option => (
-                          <DropdownMenuRadioItem
-                            key={option.value}
-                            value={option.value}
-                          >
-                            {option.label}
-                          </DropdownMenuRadioItem>
-                        ))}
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuSub>
-                  <DropdownMenuItem onClick={() => onToggleActive(user)}>
-                    {user.active ? 'Desativar' : 'Ativar'}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => onRemove(user)}
-                  >
-                    Remover
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </>
+            )}
+          </DataTableRowActions>
         )
       },
       size: 48,
