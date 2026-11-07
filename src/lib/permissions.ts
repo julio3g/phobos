@@ -1,10 +1,7 @@
-export const roleLabels = {
-  owner: 'Proprietário',
-  admin: 'Administrador',
-  member: 'Membro',
-} as const
+import type { Member } from '@/db/schema'
+import { memberRoleOptions } from '@/utils/get-label-and-icons'
 
-export type Role = keyof typeof roleLabels
+export type Role = Member['role']
 
 export const roleDescriptions: Record<Role, string> = {
   owner:
@@ -14,10 +11,11 @@ export const roleDescriptions: Record<Role, string> = {
   member: 'Somente consulta. Vê os dados, mas não altera nada.',
 }
 
-export const roleOptions = (['admin', 'member'] as const).map(value => ({
-  value,
-  label: roleLabels[value],
-}))
+// o proprietário não pode ser atribuído
+export const roleOptions = memberRoleOptions.filter(
+  (option): option is typeof option & { value: 'admin' | 'member' } =>
+    option.value !== 'owner'
+)
 
 const everyone: Record<Role, boolean> = {
   owner: true,
