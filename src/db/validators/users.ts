@@ -1,10 +1,13 @@
 import {
   createSearchParamsCache,
+  parseAsArrayOf,
   parseAsInteger,
   parseAsString,
+  parseAsStringLiteral,
 } from 'nuqs/server'
 import { getSortingStateParser } from '@/lib/data-table-parsers'
 import { z } from '@/lib/z'
+import { userRoleEnum } from '../schema/enums'
 
 export const sortableUserColumns = [
   'name',
@@ -19,7 +22,9 @@ export const searchParamsCacheUsers = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   name: parseAsString.withDefault(''),
-  role: parseAsString.withDefault(''),
+  role: parseAsArrayOf(
+    parseAsStringLiteral(userRoleEnum.enumValues)
+  ).withDefault([]),
   sort: getSortingStateParser<SortableUserColumn>(
     sortableUserColumns
   ).withDefault([{ id: 'name', desc: false }]),
