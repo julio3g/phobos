@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { FilePlus, Loader2 } from 'lucide-react'
+import { FilePlus, Loader2, Plus } from 'lucide-react'
 import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import {
@@ -27,11 +27,14 @@ import { MaterialForm } from './material-form'
 interface CreateMaterialDialogProps
   extends React.ComponentPropsWithoutRef<typeof Dialog> {
   showTrigger?: boolean
+  /** botão pequeno para usar dentro de outros forms */
+  compact?: boolean
   onSuccess?: () => void
 }
 
 export function CreateMaterialDialog({
   showTrigger = true,
+  compact = false,
   onSuccess,
   ...props
 }: CreateMaterialDialogProps) {
@@ -67,9 +70,15 @@ export function CreateMaterialDialog({
     <DialogDrawer open={open} onOpenChange={setOpen} {...props}>
       {showTrigger && (
         <Trigger>
-          <Button className="cursor-pointer">
-            Adicionar <FilePlus size={16} />
-          </Button>
+          {compact ? (
+            <Button type="button" variant="outline" size="sm">
+              <Plus className="size-4" /> Novo material
+            </Button>
+          ) : (
+            <Button className="cursor-pointer">
+              Adicionar <FilePlus size={16} />
+            </Button>
+          )}
         </Trigger>
       )}
       <Content>

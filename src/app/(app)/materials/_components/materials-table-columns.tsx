@@ -1,39 +1,30 @@
 'use client'
 
 import type { ColumnDef } from '@tanstack/react-table'
-import { ArchiveIcon, Ellipsis } from 'lucide-react'
 import type * as React from 'react'
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { DataTableRowActions } from '@/components/data-table/data-table-row-actions'
+import { StatusBadge } from '@/components/status-badge'
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 import { toast } from '@/components/ui/toast'
 import { archiveMaterial } from '@/db/actions'
 import type { Material } from '@/db/schema'
 import type { DataTableFeatures } from '@/lib/data-table-features'
 import type { DataTableRowAction } from '@/lib/data-table-types'
 import { formatCurrency } from '@/lib/format'
-import { archivedIcons } from '@/lib/icons'
-
-const ArchivedIcon = archivedIcons.true
-const ActiveIcon = archivedIcons.false
+import { archivedOptions, getArchivedIcon } from '@/utils/get-label-and-icons'
 
 async function toggleArchive(material: Material) {
   const archived = !material.archivedAt
   const { error } = await archiveMaterial({ id: material.id, archived })
-  if (error) {
-    toast.add({ type: 'error', description: error })
-    return
-  }
-  toast.add({
-    type: 'success',
-    description: archived ? 'Material arquivado' : 'Material restaurado',
-  })
+  toast.add(
+    error
+      ? { type: 'error', description: error }
+      : {
+          type: 'success',
+          description: archived ? 'Material arquivado' : 'Material restaurado',
+        }
+  )
 }
 
 interface GetMaterialTableColumnsProps {
@@ -97,35 +88,14 @@ export function getMaterialTableColumns({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} label="Situação" />
       ),
-      cell: ({ row }) =>
-        row.original.archivedAt ? (
-          <Badge variant="warning" className="py-1 [&>svg]:size-3.5">
-            <ArchivedIcon aria-hidden />
-            Arquivado
-          </Badge>
-        ) : (
-          <Badge variant="success" className="py-1 [&>svg]:size-3.5">
-            <ActiveIcon aria-hidden />
-            Ativo
-          </Badge>
-        ),
+      cell: ({ row }) => (
+        <StatusBadge meta={getArchivedIcon(!!row.original.archivedAt)} />
+      ),
       enableSorting: false,
       meta: {
         label: 'Situação',
         variant: 'multiSelect',
-        options: [
-          {
-            label: 'Ativos',
-            value: 'false',
-            icon: archivedIcons.false,
-          },
-          {
-            label: 'Arquivados',
-            value: 'true',
-            icon: archivedIcons.true,
-          },
-        ],
-        icon: ArchiveIcon,
+        options: archivedOptions,
       },
       enableColumnFilter: true,
     },
@@ -136,39 +106,21 @@ export function getMaterialTableColumns({
         <DataTableColumnHeader column={column} label="Custo unitário" />
       ),
       cell: ({ row }) =>
-        `${row.original.unitCost.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
-          maximumFractionDigits: 4,
-        })} / ${row.original.unit}`,
+        `${formatCurrency(row.original.unitCost, { maximumFractionDigits: 4 })} / ${row.original.unit}`,
       meta: { label: 'Custo unitário' },
     },
     {
       id: 'actions',
       cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                aria-label="Abrir menu"
-                variant="ghost"
-                className="flex size-8 p-0"
-              />
-            }
-          >
-            <Ellipsis className="size-4" aria-hidden="true" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem
-              onClick={() => setRowAction({ row, variant: 'update' })}
-            >
-              Editar
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => toggleArchive(row.original)}>
-              {row.original.archivedAt ? 'Restaurar' : 'Arquivar'}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <DataTableRowActions
+          onView={() => setRowAction({ row, variant: 'view' })}
+          onUpdate={() => setRowAction({ row, variant: 'update' })}
+          onDelete={() => setRowAction({ row, variant: 'delete' })}
+        >
+          <DropdownMenuItem onClick={() => toggleArchive(row.original)}>
+            {row.original.archivedAt ? 'Restaurar' : 'Arquivar'}
+          </DropdownMenuItem>
+        </DataTableRowActions>
       ),
       size: 48,
       enableSorting: false,
