@@ -5,6 +5,7 @@ import { siteConfig } from '@/lib/config'
 import { Button } from '../ui/button'
 import { NavLink } from '../ui/nav-link'
 import { ThemeSwitcher } from '../ui/theme-switcher'
+import { MobileNav } from './mobile-nav'
 import { UserMenu } from './user-menu'
 
 export async function Header() {
@@ -13,6 +14,7 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-10 border-b bg-background/20 backdrop-blur-md">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
+        <MobileNav items={siteConfig.navItems} title={siteConfig.name} />
         <Button
           variant="ghost"
           size="sm"
@@ -29,21 +31,11 @@ export async function Header() {
             </Link>
           }
         />
-        <div className="flex gap-2">
-          {siteConfig.navItems.map((item, i) => (
-            <div key={String(i)} className="hidden gap-4 lg:flex">
-              <Button
-                nativeButton={false}
-                render={
-                  <NavLink href={item.href}>
-                    <span>{item.label}</span>
-                    <span className="sr-only">{item.label}</span>
-                  </NavLink>
-                }
-                variant="ghost"
-                size="sm"
-              />
-            </div>
+        <div className="hidden gap-2 lg:flex">
+          {siteConfig.navItems.map((item) => (
+            <NavLink key={item.href} href={item.href}>
+              {item.label}
+            </NavLink>
           ))}
         </div>
         <div className="flex items-center gap-3">

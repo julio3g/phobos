@@ -9,7 +9,7 @@ export const siteConfig: SiteConfigProps = {
   description:
     'Sistema web para gerenciamento de insumos, cálculo de custos e precificação de produtos artesanais. Permite organizar materiais, calcular custos de produção e mão de obra, definir margens de lucro e gerenciar um catálogo de produtos de forma simples e eficiente.',
   navItems: [
-    { href: '/calculadora', label: 'Calculadora' },
+    { href: '/calculator', label: 'Calculadora' },
     { href: '/products', label: 'Produtos' },
     { href: '/materials', label: 'Materiais' },
     { href: '/orders', label: 'Ordens' },
