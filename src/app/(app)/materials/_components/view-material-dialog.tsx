@@ -23,6 +23,7 @@ export function ViewMaterialDialog({
       onOpenChange={onOpenChange}
       title={material?.name ?? 'Material'}
       description="Dados do material"
+      imageUrl={material?.imageUrl}
       fields={
         material
           ? [
