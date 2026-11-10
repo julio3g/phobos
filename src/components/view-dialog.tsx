@@ -26,6 +26,8 @@ interface ViewDialogProps {
   title: string
   description?: string
   fields: ViewField[]
+  /** URL da imagem (opcional) */
+  imageUrl?: string | null
   children?: React.ReactNode
 }
 
@@ -36,6 +38,7 @@ export function ViewDialog({
   title,
   description,
   fields,
+  imageUrl,
   children,
 }: ViewDialogProps) {
   return (
@@ -46,6 +49,14 @@ export function ViewDialog({
           {description ? <Description>{description}</Description> : null}
         </Header>
         <Body className="max-h-[70vh] space-y-6 overflow-y-auto">
+          {imageUrl ? (
+            // biome-ignore lint/performance/noImgElement: URL externa do R2, sem otimização do next/image
+            <img
+              src={imageUrl}
+              alt={title}
+              className="max-h-64 w-full rounded-md border object-contain"
+            />
+          ) : null}
           <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
             {fields.map(field => (
               <div

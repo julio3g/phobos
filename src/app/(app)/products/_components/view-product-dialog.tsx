@@ -27,6 +27,7 @@ export function ViewProductDialog({
       onOpenChange={onOpenChange}
       title={product?.name ?? 'Produto'}
       description={product?.variant ?? 'Dados do produto'}
+      imageUrl={product?.imageUrl}
       fields={
         product
           ? [
